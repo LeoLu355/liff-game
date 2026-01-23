@@ -1,888 +1,267 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>🧧 馬年好運抽抽樂</title>
-  <style>
-    :root{
-      --bg1:#7b0000; --bg2:#b80000;
-      --gold:#f7d36b; --gold2:#f2b94b;
-      --card: rgba(255,255,255,.10);
-      --card2: rgba(255,255,255,.14);
-      --text:#fff7e6; --muted: rgba(255,247,230,.78);
-      --shadow: 0 14px 50px rgba(0,0,0,.35);
-      --stroke: rgba(255,255,255,.18);
-      --dark: rgba(0,0,0,.18);
-      --ok: #22c55e;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(1200px 700px at 20% 10%, rgba(255,214,102,.25), transparent 60%),
-        radial-gradient(900px 600px at 80% 30%, rgba(255,214,102,.18), transparent 55%),
-        linear-gradient(180deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      padding: 14px 12px 86px;
-    }
-    a{color:inherit}
-    .wrap{ width: min(520px, 100%); display:flex; flex-direction:column; gap:12px; }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>新春互動娛樂平台</title>
 
-    .topbar{
-      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-      border: 1px solid var(--stroke);
-      border-radius: 18px;
-      padding: 12px 14px;
-      box-shadow: var(--shadow);
-      position:sticky; top: 10px; z-index: 20;
-      backdrop-filter: blur(8px);
-    }
-    .brand{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .brand h1{ margin:0; font-size:16px; font-weight:900; letter-spacing:.4px; }
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      background: rgba(0,0,0,.16);
-      border: 1px solid rgba(255,255,255,.14);
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size:12px;
-      color: rgba(255,255,255,.92);
-      user-select:none;
-      white-space:nowrap;
-    }
-    .pill b{ font-size:13px; }
-    .sub{ margin:8px 0 0 0; color: var(--muted); font-size:12.5px; line-height:1.45; }
+<style>
+:root{
+  --bg:#0f0f14;
+  --card:#181821;
+  --card2:#1f1f2b;
+  --line:#2a2a38;
+  --gold:#f2c36b;
+  --red:#b30000;
+  --text:#ffffff;
+  --muted:#9aa0b3;
+}
 
-    .panel{
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
-      border: 1px solid var(--stroke);
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: var(--shadow);
-    }
-    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    .grid3{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px; }
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0c0c12,#12121a);
+  color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;
+}
 
-    .card{
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 16px;
-      padding: 12px;
-    }
-    .card h3{ margin:0 0 6px 0; font-size:14px; font-weight:900; }
-    .card p{ margin:0; color: var(--muted); font-size:12.5px; line-height:1.45; }
+.app{
+  max-width:480px;
+  margin:0 auto;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
 
-    .btnrow{ display:flex; gap:10px; margin-top: 10px; }
-    button{
-      appearance:none;
-      border:none;
-      border-radius: 14px;
-      padding: 12px 12px;
-      font-weight: 900;
-      letter-spacing:.6px;
-      font-size: 14.5px;
-      cursor:pointer;
-      box-shadow: 0 10px 26px rgba(0,0,0,.25);
-      transition: transform .08s ease, opacity .2s ease;
-      flex: 1;
-    }
-    button:active{ transform: translateY(1px) scale(.99); }
-    button[disabled]{ opacity:.55; cursor:not-allowed; }
-    .btn-primary{ background: linear-gradient(180deg, #ffd56a, #f2b94b); color:#7b0000; }
-    .btn-ghost{ background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18); color:#fff; box-shadow:none; }
+.header{
+  padding:16px;
+  background:linear-gradient(180deg,#1b1b28,#151521);
+  border-bottom:1px solid var(--line);
+}
 
-    .tabs{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom: 14px;
-      width: min(560px, calc(100% - 24px));
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 18px;
-      box-shadow: 0 14px 50px rgba(0,0,0,.35);
-      display:grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap:6px;
-      padding: 8px;
-      z-index: 99;
-      backdrop-filter: blur(10px);
-    }
-    .tab{
-      border-radius: 14px;
-      padding: 10px 8px;
-      text-align:center;
-      font-weight: 900;
-      font-size: 12px;
-      color: rgba(255,255,255,.86);
-      border: 1px solid transparent;
-      cursor:pointer;
-      user-select:none;
-    }
-    .tab.active{
-      background: linear-gradient(180deg, rgba(255,213,106,.30), rgba(242,185,75,.18));
-      border-color: rgba(255,255,255,.14);
-      color: #fff;
-    }
-    .tab small{ display:block; font-weight:800; font-size:10px; opacity:.9; margin-top:2px; }
+.title{
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:.5px;
+}
 
-    /* ===== Wheel ===== */
-    .wheel-area{ display:flex; align-items:center; justify-content:center; padding: 12px 0 6px; position:relative; }
-    .pointer{
-      position:absolute; top:0px; left:50%; transform: translateX(-50%);
-      width:0;height:0;
-      border-left:14px solid transparent;
-      border-right:14px solid transparent;
-      border-top:22px solid var(--gold);
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
-      z-index:4;
-    }
-    .pointer:after{
-      content:""; position:absolute; left:-10px; top:-24px;
-      width:20px;height:20px;
-      background: radial-gradient(circle at 35% 35%, #fff, var(--gold2));
-      border-radius:50%;
-      border: 1px solid rgba(255,255,255,.35);
-      box-shadow: 0 8px 18px rgba(0,0,0,.25);
-    }
-    .wheel{
-      width: min(340px, 86vw);
-      height: min(340px, 86vw);
-      border-radius: 50%;
-      background: radial-gradient(circle at 50% 50%, rgba(0,0,0,.18), rgba(0,0,0,.25));
-      padding: 10px;
-      position:relative;
-    }
-    .wheel-inner{
-      width:100%; height:100%;
-      border-radius:50%;
-      border: 2px solid rgba(255,255,255,.22);
-      background: #8f0000;
-      position:relative;
-      overflow:hidden;
-      transform: rotate(0deg);
-    }
-    .rim{
-      position:absolute; inset:-8px;
-      border-radius:50%;
-      border: 8px solid rgba(247,211,107,.32);
-      pointer-events:none;
-      filter: drop-shadow(0 10px 22px rgba(0,0,0,.25));
-    }
-    .center{
-      position:absolute;
-      inset:50% auto auto 50%;
-      transform: translate(-50%,-50%);
-      width: 94px; height:94px;
-      border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #fff, var(--gold2));
-      border: 2px solid rgba(255,255,255,.38);
-      box-shadow: 0 14px 35px rgba(0,0,0,.35);
-      z-index:3;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      text-align:center;
-      padding: 10px;
-      font-weight:900;
-      color:#7b0000;
-      line-height:1.05;
-      user-select:none;
-      gap:3px;
-    }
-    .center span{ font-size:13px;}
-    .center small{ font-size:10px; opacity:.9;}
-    .spin{ transition: transform 4.3s cubic-bezier(.15,.8,.08,1); }
+.sub{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px;
+}
 
-    .result{ margin-top: 10px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px; line-height:1.45; }
-    .result .r-title{ font-weight: 900; color: #fff; margin-bottom: 4px; }
-    .result .r-sub{ color: var(--muted); font-size: 13px; }
+/* main */
+.main{
+  flex:1;
+  overflow:auto;
+  padding:14px;
+}
 
-    /* ===== Gacha ===== */
-    .gacha-grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    .ball{
-      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.18));
-      border: 1px solid rgba(255,255,255,.16);
-      border-radius: 18px;
-      padding: 12px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .rarity{
-      font-weight:900;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      font-size:12px;
-      white-space:nowrap;
-    }
+/* card */
+.card{
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:12px;
+}
 
-    /* confetti */
-    .confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index: 999; }
-    .confetti i{ position:absolute; top:-12px; width: 10px; height: 16px; border-radius:2px; opacity:.9; animation: fall linear forwards; }
-    @keyframes fall{ to{ transform: translateY(110vh) rotate(360deg); opacity:.95; } }
+/* buttons */
+.btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:700;
+  background:linear-gradient(180deg,#f6d17b,#e7b84f);
+  color:#000;
+  cursor:pointer;
+}
+.btn.dark{
+  background:#1f1f2b;
+  color:#fff;
+  border:1px solid var(--line);
+}
 
-    .sep{ height:1px; background: rgba(255,255,255,.12); margin: 10px 0; }
-    .tag{
-      display:inline-flex; align-items:center; gap:6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      font-size: 12px;
-      color: rgba(255,255,255,.90);
-    }
-    .ok{ color: var(--ok); font-weight:900; }
+/* tabs */
+.tabbar{
+  display:flex;
+  border-top:1px solid var(--line);
+  background:#0f0f16;
+}
+.tab{
+  flex:1;
+  text-align:center;
+  padding:10px 4px;
+  font-size:11px;
+  color:#9aa0b3;
+  cursor:pointer;
+}
+.tab.active{
+  color:var(--gold);
+}
 
-    .list{ display:flex; flex-direction:column; gap:10px; }
-    .li{
-      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 16px;
-      padding: 12px;
-    }
-    .li b{ font-size:13px; }
-    .li span{ color: var(--muted); font-size:12.5px; }
-    .right{ text-align:right; white-space:nowrap; }
-  </style>
+/* views */
+.view{display:none}
+.view.active{display:block}
+
+/* sections */
+.section-title{
+  font-size:14px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+/* leaderboard */
+.rank{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+/* profile */
+.profile-row{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
+}
+
+/* rules */
+.rule{
+  font-size:12px;
+  line-height:1.6;
+  color:#cfcfe6;
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
+<div class="app">
 
-    <div class="topbar">
-      <div class="brand">
-        <h1 id="pageTitle">🧧 馬年好運抽抽樂</h1>
-        <div class="pill">紅包點 <b id="rp">100</b>｜免費 <b id="free">1</b></div>
-      </div>
-      <p class="sub" id="pageSub">
-        這是「正式版外觀」的 LIFF 多頁版本：首頁 / 遊戲 / 任務 / 商城 / 我的。過年先上線就夠用了。
-      </p>
-    </div>
+  <div class="header">
+    <div class="title">新春互動娛樂平台</div>
+    <div class="sub">官方娛樂互動系統 · 非金流 · 非任務 · 非商城</div>
+  </div>
+
+  <div class="main">
 
     <!-- HOME -->
-    <section class="panel" data-page="home">
-      <div class="grid2">
-        <div class="card">
-          <h3>🎡 今日主打：紅包輪盤</h3>
-          <p>每日免費 1 次。完成任務可拿紅包點與額外券。</p>
-          <div class="btnrow">
-            <button class="btn-primary" onclick="go('#game')">立即遊玩</button>
-            <button class="btn-ghost" onclick="go('#tasks')">去做任務</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>🐣 扭蛋機</h3>
-          <p>收集稀有度 N/R/SR/SSR，集滿套裝可換限定稱號。</p>
-          <div class="btnrow">
-            <button class="btn-primary" onclick="go('#gacha')">開扭蛋</button>
-            <button class="btn-ghost" onclick="go('#shop')">看兌換</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="sep"></div>
-
-      <div class="grid3">
-        <div class="card">
-          <h3>🏆 排行榜</h3>
-          <p>過年週榜：完成任務＋遊戲累積。</p>
-          <div class="btnrow">
-            <button class="btn-ghost" onclick="go('#rank')">查看榜單</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>💳 會員方案</h3>
-          <p><span class="tag">NT$199/月</span> 固定福利：每日任務加成、專屬徽章、每週禮包。</p>
-          <div class="btnrow">
-            <button class="btn-primary" onclick="go('#pro')">了解方案</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>📣 規則/客服</h3>
-          <p>活動規則、隱私條款、領獎方式與客服入口。</p>
-          <div class="btnrow">
-            <button class="btn-ghost" onclick="go('#rules')">查看</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- GAME (Wheel) -->
-    <section class="panel" data-page="game">
-      <div class="tag">🎡 紅包輪盤</div>
-      <div class="wheel-area">
-        <div class="pointer"></div>
-        <div class="wheel">
-          <div class="rim"></div>
-          <div class="wheel-inner" id="wheelInner">
-            <canvas id="wheelCanvas" width="600" height="600" style="width:100%;height:100%;display:block;"></canvas>
-            <div class="center"><span>開始轉</span><small>好運來</small></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="btnrow">
-        <button class="btn-primary" id="spinBtn">🎡 開始轉</button>
-        <button class="btn-ghost" id="resetBtn">重置</button>
-      </div>
-
-      <div class="result" id="resultBox">
-        <div class="r-title">結果：尚未開始</div>
-        <div class="r-sub">提示：下一版會接後端（每日限制、紀錄、風控、點數兌換）。</div>
-      </div>
-
-      <div class="sep"></div>
+    <div class="view active" id="home">
       <div class="card">
-        <h3>🎟️ 正式版規則（預設）</h3>
-        <p>每日免費 1 次；額外次數由任務/活動點數取得。付費僅提供「固定福利」或「固定商品」，不直接販售抽獎次數。</p>
-      </div>
-    </section>
-
-    <!-- GACHA -->
-    <section class="panel" data-page="gacha">
-      <div class="tag">🐣 扭蛋機（簡易版）</div>
-      <div class="card" style="margin-top:10px">
-        <h3>玩法</h3>
-        <p>使用「扭蛋幣」抽取卡片。稀有度：N / R / SR / SSR。10 連保底 R 以上（此版為示範）。</p>
-      </div>
-
-      <div class="gacha-grid">
-        <div class="ball">
-          <div>
-            <b>單抽</b><br><span style="color:var(--muted);font-size:12.5px">消耗：扭蛋幣 1</span>
-          </div>
-          <button class="btn-primary" onclick="gachaDraw(1)">抽一次</button>
-        </div>
-        <div class="ball">
-          <div>
-            <b>十連</b><br><span style="color:var(--muted);font-size:12.5px">消耗：扭蛋幣 10</span>
-          </div>
-          <button class="btn-primary" onclick="gachaDraw(10)">抽十次</button>
+        <div class="section-title">活動公告</div>
+        <div style="font-size:13px;color:#cfcfe6">
+          歡迎來到新春互動娛樂平台。本平台為娛樂互動用途，所有遊玩次數由平台派發。
         </div>
       </div>
 
-      <div class="result" id="gachaBox" style="margin-top:10px">
-        <div class="r-title">結果：尚未抽取</div>
-        <div class="r-sub">提示：之後會做圖鑑、保底、收集套裝兌換。</div>
-      </div>
-
-      <div class="sep"></div>
       <div class="card">
-        <h3>🎯 下一步可加</h3>
-        <p>圖鑑收集、套裝兌換、保底 SR/SSR、掉落動畫與音效。</p>
-      </div>
-    </section>
-
-    <!-- TASKS -->
-    <section class="panel" data-page="tasks">
-      <div class="tag">🧧 每日任務</div>
-      <div class="list" style="margin-top:10px">
-        <div class="li">
-          <div>
-            <b>每日簽到</b><br><span>領取紅包點 +20</span>
-          </div>
-          <div class="right">
-            <button class="btn-primary" style="padding:10px 12px" onclick="claimTask('signin')">領取</button>
-          </div>
-        </div>
-        <div class="li">
-          <div>
-            <b>分享活動</b><br><span>領取紅包點 +30</span>
-          </div>
-          <div class="right">
-            <button class="btn-primary" style="padding:10px 12px" onclick="claimTask('share')">領取</button>
-          </div>
-        </div>
-        <div class="li">
-          <div>
-            <b>邀請 1 位好友</b><br><span>領取紅包點 +50（示範版不做驗證）</span>
-          </div>
-          <div class="right">
-            <button class="btn-primary" style="padding:10px 12px" onclick="claimTask('invite')">領取</button>
-          </div>
-        </div>
+        <div class="section-title">快速入口</div>
+        <button class="btn" onclick="go('game')">🎮 進入遊戲</button>
       </div>
 
-      <div class="sep"></div>
       <div class="card">
-        <h3>💡 正式版會做什麼？</h3>
-        <p>任務都由後端驗證（防刷），每天 00:00 重置（台北時間），並寫入任務紀錄。</p>
+        <div class="section-title">最新動態</div>
+        <div style="font-size:12px;color:var(--muted)">系統穩定運行中</div>
       </div>
-    </section>
+    </div>
 
-    <!-- SHOP -->
-    <section class="panel" data-page="shop">
-      <div class="tag">🎁 兌換商城</div>
-
-      <div class="card" style="margin-top:10px">
-        <h3>用紅包點兌換（活動幣）</h3>
-        <p>這區讓遊戲更像正式版：先兌換券/幣，再去玩輪盤/扭蛋。</p>
-        <div class="btnrow">
-          <button class="btn-primary" onclick="exchange('wheel', 50)">兌換輪盤券（50 RP）</button>
-          <button class="btn-primary" onclick="exchange('gacha', 30)">兌換扭蛋幣（30 RP）</button>
+    <!-- GAME -->
+    <div class="view" id="game">
+      <div class="card">
+        <div class="section-title">我的遊戲次數</div>
+        <div style="font-size:13px">
+          輪盤次數：<b>3</b><br/>
+          扭蛋次數：<b>2</b>
         </div>
       </div>
 
-      <div class="sep"></div>
-
-      <div class="grid2">
-        <div class="card">
-          <h3>🛍️ 固定商品（可收錢）</h3>
-          <p>折扣券包 / 周邊 / VIP 禮盒（固定內容，不是付費抽獎）。</p>
-          <div class="btnrow">
-            <button class="btn-ghost" onclick="go('#pro')">看會員方案</button>
-            <button class="btn-ghost" onclick="alert('此版先做頁面，下一步再接金流/訂單。')">購買入口</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>🎟️ 折扣碼/兌換碼</h3>
-          <p>輸入兌換碼領取福利（過年活動很常用）。</p>
-          <div class="btnrow">
-            <button class="btn-ghost" onclick="redeemPrompt()">輸入兌換碼</button>
-          </div>
-        </div>
+      <div class="card">
+        <div class="section-title">遊戲入口</div>
+        <button class="btn">🎡 輪盤遊戲</button><br/><br/>
+        <button class="btn dark">🥚 扭蛋遊戲</button>
       </div>
-    </section>
+    </div>
 
-    <!-- ME -->
-    <section class="panel" data-page="me">
-      <div class="tag">👤 我的</div>
+    <!-- LEADERBOARD -->
+    <div class="view" id="leaderboard">
+      <div class="card">
+        <div class="section-title">排行榜</div>
+        <div class="rank"><span>1. 玩家A</span><span>🎯 12次</span></div>
+        <div class="rank"><span>2. 玩家B</span><span>🎯 9次</span></div>
+        <div class="rank"><span>3. 玩家C</span><span>🎯 7次</span></div>
+        <div class="rank"><span>4. 玩家D</span><span>🎯 5次</span></div>
+      </div>
+    </div>
 
-      <div class="card" style="margin-top:10px">
-        <h3>帳號狀態</h3>
-        <p>LINE 使用者：<b id="userName">（示範版）</b><br>
-           會員狀態：<b id="proState">未加入</b>
-        </p>
-        <div class="btnrow">
-          <button class="btn-primary" onclick="go('#pro')">加入會員</button>
-          <button class="btn-ghost" onclick="go('#rules')">規則/客服</button>
-        </div>
+    <!-- PROFILE -->
+    <div class="view" id="profile">
+      <div class="card">
+        <div class="section-title">我的帳號</div>
+        <div class="profile-row"><span>身份來源</span><span>LINE LIFF</span></div>
+        <div class="profile-row"><span>使用者狀態</span><span>正常</span></div>
+        <div class="profile-row"><span>遊戲權限</span><span>已授權</span></div>
+        <div class="profile-row"><span>帳號類型</span><span>一般用戶</span></div>
       </div>
 
-      <div class="sep"></div>
-
-      <div class="grid2">
-        <div class="card">
-          <h3>📜 我的紀錄</h3>
-          <p>轉盤/扭蛋/任務紀錄（此版為前端示範）。</p>
-        </div>
-        <div class="card">
-          <h3>🔒 安全提醒</h3>
-          <p>正式版會加入每日上限、冷卻時間、異常行為判定，避免刷獎。</p>
-        </div>
+      <div class="card">
+        <div class="section-title">紀錄</div>
+        <div class="profile-row"><span>輪盤遊玩</span><span>3 次</span></div>
+        <div class="profile-row"><span>扭蛋遊玩</span><span>2 次</span></div>
       </div>
-    </section>
-
-    <!-- PRO -->
-    <section class="panel" data-page="pro">
-      <div class="tag">💳 會員/贊助（正式版感）</div>
-      <div class="card" style="margin-top:10px">
-        <h3>VIP 會員 NT$199/月</h3>
-        <p>
-          ✅ 每日任務加成（額外 RP）<br>
-          ✅ 專屬徽章 & 外觀<br>
-          ✅ 每週固定禮包（固定內容）<br>
-          ✅ 優先客服
-        </p>
-        <div class="btnrow">
-          <button class="btn-primary" onclick="joinPro()">立即加入</button>
-          <button class="btn-ghost" onclick="alert('此版先做 UI/流程，下一步再接訂單/付款。')">付款/訂單</button>
-        </div>
-        <p style="margin:10px 0 0 0; color:var(--muted); font-size:12.5px; line-height:1.45;">
-          提醒：會員提供的是「固定福利」，不是購買抽獎機率或抽獎次數。
-        </p>
-      </div>
-    </section>
-
-    <!-- RANK -->
-    <section class="panel" data-page="rank">
-      <div class="tag">🏆 排行榜（示範）</div>
-      <div class="card" style="margin-top:10px">
-        <h3>過年週榜</h3>
-        <p>正式版會改成後端排行快照。本版先用示範資料。</p>
-      </div>
-      <div class="list" style="margin-top:10px">
-        <div class="li"><div><b>1. 招財虎</b><br><span>RP 1880</span></div><div class="right">🥇</div></div>
-        <div class="li"><div><b>2. 福氣兔</b><br><span>RP 1620</span></div><div class="right">🥈</div></div>
-        <div class="li"><div><b>3. 發財龍</b><br><span>RP 1410</span></div><div class="right">🥉</div></div>
-      </div>
-    </section>
+    </div>
 
     <!-- RULES -->
-    <section class="panel" data-page="rules">
-      <div class="tag">📣 規則 / 客服</div>
-      <div class="card" style="margin-top:10px">
-        <h3>活動規則（精簡版，可直接上線）</h3>
-        <p>
-          1) 活動期間：依公告。<br>
-          2) 遊戲點數（RP）為活動用點數，不可兌現、不可轉讓。<br>
-          3) 遊戲獎勵以系統顯示為準；若有異常可聯繫客服。<br>
-          4) 系統將記錄必要的活動資訊以維護公平性。<br>
-          5) 會員/商品屬固定福利與固定內容，不保證中獎。
-        </p>
+    <div class="view" id="rules">
+      <div class="card">
+        <div class="section-title">平台聲明</div>
+        <div class="rule">
+          本平台為娛樂互動系統，所有遊戲內容僅供娛樂用途。<br/><br/>
+          遊戲次數由平台派發，使用者無法購買、交易或轉讓遊玩次數。<br/><br/>
+          本平台不提供金流服務、不涉及賭博、博弈或抽獎販售機制。<br/><br/>
+          所有功能皆屬活動互動用途。
+        </div>
       </div>
-      <div class="card" style="margin-top:10px">
-        <h3>客服</h3>
-        <p>客服信箱：support@example.com（你之後改成你的）<br>服務時間：09:00–18:00</p>
+
+      <div class="card">
+        <div class="section-title">客服支援</div>
+        <div class="rule">
+          聯絡方式：<br/>
+          Email：support@platform.com<br/>
+          LINE：官方帳號客服
+        </div>
       </div>
-    </section>
+    </div>
 
   </div>
 
-  <div class="tabs">
-    <div class="tab" data-to="#home">首頁<small>Home</small></div>
-    <div class="tab" data-to="#game">遊戲<small>Wheel</small></div>
-    <div class="tab" data-to="#tasks">任務<small>Daily</small></div>
-    <div class="tab" data-to="#shop">商城<small>Shop</small></div>
-    <div class="tab" data-to="#me">我的<small>Me</small></div>
+  <!-- TAB BAR -->
+  <div class="tabbar">
+    <div class="tab active" onclick="switchTab('home',this)">🏠<br/>首頁</div>
+    <div class="tab" onclick="switchTab('game',this)">🎮<br/>遊戲</div>
+    <div class="tab" onclick="switchTab('leaderboard',this)">🏆<br/>排行榜</div>
+    <div class="tab" onclick="switchTab('profile',this)">👤<br/>我的</div>
+    <div class="tab" onclick="switchTab('rules',this)">📜<br/>規則</div>
   </div>
 
-  <div class="confetti" id="confetti"></div>
+</div>
 
-  <script>
-    // ===== 全域狀態（示範版：先在前端存） =====
-    let state = {
-      rp: 100,
-      free: 1,
-      wheelTickets: 0,
-      gachaCoins: 10, // 先給 10 顆示範
-      pro: false,
-      claimed: { signin:false, share:false, invite:false },
-      wheelCount: 0,
-      spinning: false,
-      currentRotation: 0
-    };
+<script>
+function switchTab(id,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
 
-    const elRp = document.getElementById("rp");
-    const elFree = document.getElementById("free");
-    const pageTitle = document.getElementById("pageTitle");
-    const pageSub = document.getElementById("pageSub");
-    const userName = document.getElementById("userName");
-    const proState = document.getElementById("proState");
+function go(id){
+  switchTab(id, document.querySelector(`.tabbar .tab[onclick*="${id}"]`) || document.querySelectorAll('.tab')[1]);
+}
+</script>
 
-    function updateTop(){
-      elRp.textContent = state.rp;
-      elFree.textContent = state.free;
-      proState.textContent = state.pro ? "已加入（VIP）" : "未加入";
-      userName.textContent = "LINE 用戶（正式版會讀取 profile）";
-    }
-    updateTop();
-
-    // ===== Router：用 hash 當多頁 =====
-    const pages = [...document.querySelectorAll("[data-page]")];
-    const tabs = [...document.querySelectorAll(".tab")];
-
-    function go(hash){
-      location.hash = hash;
-    }
-    function route(){
-      const h = location.hash || "#home";
-      const key = h.replace("#","") || "home";
-
-      pages.forEach(p => p.style.display = (p.dataset.page === key) ? "block" : "none");
-
-      tabs.forEach(t => t.classList.toggle("active", t.dataset.to === h || (h==="#gacha" && t.dataset.to==="#game") || (h==="#pro" && t.dataset.to==="#me") || (h==="#rank" && t.dataset.to==="#home") || (h==="#rules" && t.dataset.to==="#me")));
-
-      // 標題/副標
-      const map = {
-        home: ["🧧 馬年好運抽抽樂", "過年活動版（正式外觀）：首頁/遊戲/任務/商城/我的。"],
-        game: ["🎡 紅包輪盤", "每日免費 1 次；額外次數可用任務或活動點數取得。"],
-        gacha:["🐣 扭蛋機", "稀有度抽取與收集玩法（此版為簡易示範）。"],
-        tasks:["🧧 每日任務", "完成任務領取紅包點，提升遊戲次數與兌換能力。"],
-        shop:["🎁 兌換商城", "先兌換券/幣，再去玩；付費只做固定福利/固定商品。"],
-        me:["👤 我的", "會員/紀錄/客服入口都在這裡。"],
-        pro:["💳 會員方案", "NT$199/月（固定福利），此版先做 UI，下一步再接訂單/付款。"],
-        rank:["🏆 排行榜", "此版為示範資料；正式版會由後端排行快照生成。"],
-        rules:["📣 規則/客服", "建議上線必備頁：規則、客服、隱私與條款。"]
-      };
-      const [t,s] = map[key] || map.home;
-      pageTitle.textContent = t;
-      pageSub.textContent = s;
-
-      updateTop();
-    }
-    window.addEventListener("hashchange", route);
-    tabs.forEach(t => t.addEventListener("click", ()=> go(t.dataset.to)));
-    route();
-
-    // ======= Wheel（輪盤） =======
-    const PRIZES = [
-      { name: "RP +5",   weight: 50, reward: { rp: 5 } },
-      { name: "RP +10",  weight: 20, reward: { rp: 10 } },
-      { name: "免費次數 +1", weight: 12, reward: { free: 1 } },
-      { name: "扭蛋幣 +1", weight: 10, reward: { gacha: 1 } },
-      { name: "輪盤券 +1", weight: 6,  reward: { wheel: 1 } },
-      { name: "金獎碎片 +1", weight: 2, reward: { shard: 1 } },
-    ];
-
-    const wheelInner = document.getElementById("wheelInner");
-    const spinBtn = document.getElementById("spinBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const resultBox = document.getElementById("resultBox");
-
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
-    const cx = W/2, cy = H/2;
-    const radius = 275;
-    const n = PRIZES.length;
-    const slice = (Math.PI * 2) / n;
-
-    function drawWheel() {
-      ctx.clearRect(0,0,W,H);
-      ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
-      ctx.fillStyle = "#7f0000"; ctx.fill();
-
-      for(let i=0;i<n;i++){
-        const a0 = i*slice - Math.PI/2;
-        const a1 = a0 + slice;
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, radius, a0, a1);
-        ctx.closePath();
-
-        ctx.fillStyle = (i%2===0) ? "rgba(255,214,102,.32)" : "rgba(0,0,0,.18)";
-        ctx.fill();
-
-        ctx.strokeStyle = "rgba(255,255,255,.18)";
-        ctx.lineWidth = 3;
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(a0 + slice/2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = "rgba(255,255,255,.95)";
-        ctx.font = "900 26px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial";
-        ctx.fillText(PRIZES[i].name, radius - 18, 10);
-        ctx.restore();
-      }
-
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius-12, 0, Math.PI*2);
-      ctx.strokeStyle = "rgba(247,211,107,.25)";
-      ctx.lineWidth = 10;
-      ctx.stroke();
-    }
-    drawWheel();
-
-    function setResult(title, sub){
-      resultBox.querySelector(".r-title").textContent = title;
-      resultBox.querySelector(".r-sub").textContent = sub;
-    }
-
-    function pickPrizeIndex(){
-      const total = PRIZES.reduce((s,p)=>s+p.weight,0);
-      let r = Math.random()*total;
-      for(let i=0;i<PRIZES.length;i++){
-        r -= PRIZES[i].weight;
-        if(r<=0) return i;
-      }
-      return PRIZES.length-1;
-    }
-    function applyReward(prize){
-      if(prize.reward.rp) state.rp += prize.reward.rp;
-      if(prize.reward.free) state.free += prize.reward.free;
-      if(prize.reward.gacha) state.gachaCoins += prize.reward.gacha;
-      if(prize.reward.wheel) state.wheelTickets += prize.reward.wheel;
-    }
-
-    function spin(){
-      if(state.spinning) return;
-      if(state.free <= 0 && state.wheelTickets <= 0){
-        setResult("結果：次數不足", "先去任務領取 RP 或在商城兌換輪盤券。");
-        return;
-      }
-
-      state.spinning = true;
-      spinBtn.disabled = true;
-
-      const idx = pickPrizeIndex();
-      const prize = PRIZES[idx];
-
-      // 消耗：優先用免費，沒有就用輪盤券
-      if(state.free > 0) state.free -= 1;
-      else state.wheelTickets -= 1;
-
-      state.wheelCount += 1;
-      updateTop();
-
-      const degPer = 360 / n;
-      const targetCenter = (idx + 0.5) * degPer;
-      const extraSpins = 6;
-      const finalRotation = extraSpins*360 + (360 - targetCenter);
-      const nextRotation = state.currentRotation + finalRotation;
-
-      wheelInner.classList.add("spin");
-      wheelInner.style.transform = `rotate(${nextRotation}deg)`;
-
-      setTimeout(()=>{
-        state.currentRotation = nextRotation % 360;
-
-        applyReward(prize);
-        updateTop();
-
-        if(prize.weight <= 6) burstConfetti(70);
-        else if(prize.weight <= 12) burstConfetti(35);
-        else burstConfetti(18);
-
-        setResult(`結果：你抽到「${prize.name}」`, `恭喜！扭蛋幣：${state.gachaCoins}｜輪盤券：${state.wheelTickets}`);
-
-        state.spinning = false;
-        spinBtn.disabled = false;
-      }, 4350);
-    }
-
-    spinBtn.addEventListener("click", spin);
-    resetBtn.addEventListener("click", ()=>{
-      state.rp = 100; state.free = 1; state.wheelTickets = 0; state.gachaCoins = 10;
-      state.pro = false; state.claimed = { signin:false, share:false, invite:false };
-      state.wheelCount = 0; state.spinning = false; state.currentRotation = 0;
-
-      wheelInner.classList.remove("spin");
-      wheelInner.style.transform = "rotate(0deg)";
-      setResult("結果：已重置", "點「開始轉」測試輪盤。");
-      updateTop();
-    });
-
-    // ======= Confetti =======
-    const confetti = document.getElementById("confetti");
-    function burstConfetti(count){
-      confetti.innerHTML = "";
-      const colors = ["#ffd56a","#f2b94b","#ffffff","rgba(255,255,255,.75)"];
-      for(let i=0;i<count;i++){
-        const el = document.createElement("i");
-        const left = Math.random()*100;
-        const delay = Math.random()*0.15;
-        const dur = 1.4 + Math.random()*1.2;
-        const sizeW = 6 + Math.random()*10;
-        const sizeH = 10 + Math.random()*18;
-        el.style.left = left + "vw";
-        el.style.animationDelay = delay + "s";
-        el.style.animationDuration = dur + "s";
-        el.style.width = sizeW + "px";
-        el.style.height = sizeH + "px";
-        el.style.background = colors[Math.floor(Math.random()*colors.length)];
-        confetti.appendChild(el);
-        el.animate(
-          [
-            { transform: `translateY(0) translateX(0) rotate(0deg)` },
-            { transform: `translateY(110vh) translateX(${(Math.random()*2-1)*140}px) rotate(${360+Math.random()*360}deg)` }
-          ],
-          { duration: dur*1000, delay: delay*1000, fill: "forwards", easing: "linear" }
-        );
-      }
-      setTimeout(()=>{ confetti.innerHTML=""; }, 2600);
-    }
-
-    // ======= Tasks =======
-    function claimTask(key){
-      if(state.claimed[key]){
-        alert("此任務今日已領取（示範版）。");
-        return;
-      }
-      const rewardMap = { signin:20, share:30, invite:50 };
-      state.claimed[key] = true;
-      state.rp += (rewardMap[key] || 10);
-      updateTop();
-      alert("領取成功！RP 已增加。");
-    }
-
-    // ======= Shop (Exchange) =======
-    function exchange(type, cost){
-      if(state.rp < cost){
-        alert("紅包點不足，先去做任務領取。");
-        return;
-      }
-      state.rp -= cost;
-      if(type === "wheel") state.wheelTickets += 1;
-      if(type === "gacha") state.gachaCoins += 1;
-      updateTop();
-      alert("兌換成功！");
-    }
-
-    function redeemPrompt(){
-      const code = prompt("請輸入兌換碼（示範版）");
-      if(!code) return;
-      // demo: 任意碼給 20 RP
-      state.rp += 20;
-      updateTop();
-      alert("兌換成功：RP +20（示範）");
-    }
-
-    // ======= Gacha =======
-    const gachaBox = document.getElementById("gachaBox");
-    function gachaPick(){
-      // 簡易機率：N 75% / R 20% / SR 4.5% / SSR 0.5%
-      const r = Math.random()*100;
-      if(r < 0.5) return { rarity:"SSR", name:"SSR｜金色傳說（限定）" };
-      if(r < 5.0) return { rarity:"SR",  name:"SR｜稀有收藏（限定）" };
-      if(r < 25.0) return { rarity:"R",   name:"R｜稀有卡" };
-      return { rarity:"N", name:"N｜普通卡" };
-    }
-    function gachaDraw(times){
-      const need = times;
-      if(state.gachaCoins < need){
-        alert("扭蛋幣不足，去商城用 RP 兌換或從輪盤取得。");
-        return;
-      }
-      state.gachaCoins -= need;
-      updateTop();
-
-      const results = [];
-      let hasRPlus = false;
-
-      for(let i=0;i<times;i++){
-        const it = gachaPick();
-        results.push(it);
-        if(it.rarity !== "N") hasRPlus = true;
-      }
-      // 10連保底：至少一張 R+
-      if(times === 10 && !hasRPlus){
-        results[results.length-1] = { rarity:"R", name:"R｜保底稀有卡" };
-      }
-
-      const lines = results.map(r=>`${r.rarity}｜${r.name}`).join(" / ");
-      gachaBox.querySelector(".r-title").textContent = `結果：${times} 抽完成`;
-      gachaBox.querySelector(".r-sub").textContent = lines;
-      if(results.some(r=>r.rarity==="SSR")) burstConfetti(80);
-      else if(results.some(r=>r.rarity==="SR")) burstConfetti(40);
-    }
-
-    // ======= Pro =======
-    function joinPro(){
-      state.pro = true;
-      // 固定福利示範：立即送 RP +50 + 免費次數 +1
-      state.rp += 50;
-      state.free += 1;
-      updateTop();
-      alert("已加入 VIP（示範）！已發放固定福利。");
-      go("#me");
-    }
-
-    // expose for inline onclick
-    window.go = go;
-    window.claimTask = claimTask;
-    window.exchange = exchange;
-    window.redeemPrompt = redeemPrompt;
-    window.gachaDraw = gachaDraw;
-    window.joinPro = joinPro;
-
-    document.addEventListener("touchstart", ()=>{}, {passive:true});
-  </script>
 </body>
 </html>
