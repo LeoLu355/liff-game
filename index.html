@@ -4,7 +4,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>新春互動娛樂平台</title>
-
 <style>
 :root{
   --bg:#0f0f14;
@@ -12,9 +11,12 @@
   --card2:#1f1f2b;
   --line:#2a2a38;
   --gold:#f2c36b;
-  --red:#b30000;
+  --gold2:#e7b84f;
   --text:#ffffff;
   --muted:#9aa0b3;
+  --ok:#3ddc97;
+  --warn:#ffcc66;
+  --bad:#ff6b6b;
 }
 
 *{box-sizing:border-box}
@@ -24,7 +26,6 @@ body{
   color:var(--text);
   font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;
 }
-
 .app{
   max-width:480px;
   margin:0 auto;
@@ -32,33 +33,16 @@ body{
   display:flex;
   flex-direction:column;
 }
-
 .header{
   padding:16px;
   background:linear-gradient(180deg,#1b1b28,#151521);
   border-bottom:1px solid var(--line);
 }
+.title{font-size:18px;font-weight:900;letter-spacing:.5px}
+.sub{font-size:12px;color:var(--muted);margin-top:4px}
 
-.title{
-  font-size:18px;
-  font-weight:800;
-  letter-spacing:.5px;
-}
+.main{flex:1;overflow:auto;padding:14px}
 
-.sub{
-  font-size:12px;
-  color:var(--muted);
-  margin-top:4px;
-}
-
-/* main */
-.main{
-  flex:1;
-  overflow:auto;
-  padding:14px;
-}
-
-/* card */
 .card{
   background:linear-gradient(180deg,var(--card),var(--card2));
   border:1px solid var(--line);
@@ -67,13 +51,15 @@ body{
   margin-bottom:12px;
 }
 
-/* buttons */
+.section-title{font-size:14px;font-weight:800;margin-bottom:8px}
+
 .btn{
   width:100%;
   padding:12px;
   border:none;
   border-radius:12px;
-  font-weight:700;
+  font-weight:900;
+  letter-spacing:.4px;
   background:linear-gradient(180deg,#f6d17b,#e7b84f);
   color:#000;
   cursor:pointer;
@@ -83,8 +69,12 @@ body{
   color:#fff;
   border:1px solid var(--line);
 }
+.btn:active{transform:translateY(1px)}
+.row{
+  display:flex; gap:10px;
+}
+.row .btn{flex:1}
 
-/* tabs */
 .tabbar{
   display:flex;
   border-top:1px solid var(--line);
@@ -97,23 +87,13 @@ body{
   font-size:11px;
   color:#9aa0b3;
   cursor:pointer;
+  user-select:none;
 }
-.tab.active{
-  color:var(--gold);
-}
+.tab.active{color:var(--gold)}
 
-/* views */
 .view{display:none}
 .view.active{display:block}
 
-/* sections */
-.section-title{
-  font-size:14px;
-  font-weight:700;
-  margin-bottom:8px;
-}
-
-/* leaderboard */
 .rank{
   display:flex;
   justify-content:space-between;
@@ -121,8 +101,6 @@ body{
   border-bottom:1px solid var(--line);
   font-size:13px;
 }
-
-/* profile */
 .profile-row{
   display:flex;
   justify-content:space-between;
@@ -130,22 +108,311 @@ body{
   border-bottom:1px solid var(--line);
   font-size:13px;
 }
+.rule{font-size:12px;line-height:1.7;color:#cfcfe6}
 
-/* rules */
-.rule{
+/* ---------- Modal ---------- */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:50;
+  padding:14px;
+}
+.modal.show{display:flex}
+.sheet{
+  width:min(520px, 100%);
+  background:linear-gradient(180deg,#1a1a26,#141421);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:18px;
+  box-shadow:0 18px 60px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.sheetHead{
+  padding:12px 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.sheetHead b{font-size:14px}
+.sheetHead button{
+  border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;
+  opacity:.8;
+}
+.sheetBody{padding:14px}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
   font-size:12px;
-  line-height:1.6;
-  color:#cfcfe6;
+  font-weight:900;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+}
+.badge.ok{border-color:rgba(61,220,151,.35); background:rgba(61,220,151,.08)}
+.badge.warn{border-color:rgba(255,204,102,.35); background:rgba(255,204,102,.08)}
+.badge.bad{border-color:rgba(255,107,107,.35); background:rgba(255,107,107,.08)}
+.resultTitle{font-weight:900;font-size:18px;margin:8px 0 6px}
+.resultSub{color:var(--muted);font-size:12px;line-height:1.5}
+.smallHint{margin-top:10px;color:rgba(255,255,255,.68);font-size:12px}
+
+/* ---------- Game overlays ---------- */
+.gameOverlay{
+  position:fixed;
+  inset:0;
+  background: radial-gradient(900px 600px at 15% 10%, rgba(242,195,107,.18), transparent 60%),
+              radial-gradient(900px 600px at 85% 30%, rgba(255,255,255,.06), transparent 60%),
+              linear-gradient(180deg,#0c0c12,#12121a);
+  display:none;
+  z-index:60;
+}
+.gameOverlay.show{display:block}
+.gameTop{
+  padding:14px 14px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.gameTop .t{font-weight:900}
+.backBtn{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border-radius:12px;
+  padding:10px 12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.gameArea{
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  align-items:center;
+}
+
+/* ---------- Roulette ---------- */
+.wheelWrap{
+  width:min(360px, 92vw);
+  height:min(360px, 92vw);
+  position:relative;
+}
+.pointer{
+  position:absolute;
+  top:-6px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-top:22px solid var(--gold);
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,.45));
+  z-index:4;
+}
+.pointer::after{
+  content:"";
+  position:absolute;
+  left:-10px; top:-24px;
+  width:20px; height:20px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff, var(--gold2));
+  border:1px solid rgba(255,255,255,.35);
+}
+.wheel{
+  width:100%; height:100%;
+  border-radius:50%;
+  padding:10px;
+  background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.22), rgba(0,0,0,.35));
+}
+.wheelInner{
+  width:100%; height:100%;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.18);
+  overflow:hidden;
+  background:#7f0000;
+  position:relative;
+  transform:rotate(0deg);
+}
+.wheelInner.spin{
+  transition: transform 4.2s cubic-bezier(.15,.82,.06,1);
+}
+.centerBtn{
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:94px; height:94px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff, var(--gold2));
+  border:2px solid rgba(255,255,255,.32);
+  box-shadow:0 16px 40px rgba(0,0,0,.45);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:#7f0000;
+  font-weight:1000;
+  user-select:none;
+}
+.centerBtn span{font-size:14px}
+.centerBtn small{font-size:10px; opacity:.9; margin-top:3px}
+.wheelHint{
+  width: min(360px, 92vw);
+  color:rgba(255,255,255,.72);
+  font-size:12px;
+  line-height:1.5;
+  text-align:center;
+}
+
+/* ---------- Gacha ---------- */
+.gachaMachine{
+  width:min(360px, 92vw);
+  height:420px;
+  background:linear-gradient(180deg,#1b1b28,#141421);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 18px 60px rgba(0,0,0,.55);
+}
+.gachaHead{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  border-bottom:1px solid rgba(255,255,255,.10);
+  color:rgba(255,255,255,.92);
+}
+.glass{
+  position:absolute;
+  left:16px; right:16px;
+  top:86px; height:190px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  overflow:hidden;
+}
+.balls{
+  position:absolute;
+  inset:0;
+  opacity:.95;
+}
+.ball{
+  position:absolute;
+  width:26px; height:26px;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(242,195,107,.85));
+  box-shadow:0 10px 18px rgba(0,0,0,.25);
+  opacity:.9;
+}
+.coinSlot{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  top:290px;
+  width:160px;
+  height:44px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-weight:900;
+  color:rgba(255,255,255,.9);
+}
+.handle{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:26px;
+  width:170px;
+  height:56px;
+  border-radius:16px;
+  background:linear-gradient(180deg,#f6d17b,#e7b84f);
+  color:#000;
+  font-weight:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  user-select:none;
+}
+.handle:active{transform:translateX(-50%) translateY(1px)}
+.dropZone{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:96px;
+  width:210px;
+  height:78px;
+  border-radius:18px;
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.10);
+  overflow:hidden;
+}
+.capsule{
+  position:absolute;
+  left:50%;
+  top:-60px;
+  transform:translateX(-50%);
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(242,195,107,.85));
+  box-shadow:0 20px 30px rgba(0,0,0,.35);
+  display:none;
+}
+.capsule.show{display:block}
+.capsule.fall{animation: fall 0.9s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes fall{
+  to{ top: 8px; }
+}
+
+/* rarity effects */
+.rarityGlow{
+  position:absolute;
+  inset:-40px;
+  background: radial-gradient(circle at 50% 50%, rgba(242,195,107,.25), transparent 60%);
+  opacity:0;
+  pointer-events:none;
+}
+.rarityGlow.on{opacity:1; animation: pulse 1.1s ease-in-out infinite alternate}
+@keyframes pulse{to{transform:scale(1.05); opacity:.95}}
+
+.sr{background: radial-gradient(circle at 50% 50%, rgba(255,204,102,.28), transparent 62%)}
+.ssr{background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.22), rgba(242,195,107,.30), transparent 70%)}
+
+/* confetti */
+.confetti{
+  position:fixed; inset:0; pointer-events:none; z-index:80; overflow:hidden;
+}
+.confetti i{
+  position:absolute;
+  top:-12px;
+  width:10px;height:16px;border-radius:2px;
+  opacity:.9;
+  animation: fall2 linear forwards;
+}
+@keyframes fall2{
+  to{ transform: translateY(110vh) rotate(360deg); opacity:.95; }
 }
 </style>
 </head>
 
 <body>
 <div class="app">
-
   <div class="header">
     <div class="title">新春互動娛樂平台</div>
-    <div class="sub">官方娛樂互動系統 · 非金流 · 非任務 · 非商城</div>
+    <div class="sub">正式版前端 · 已移除任務/商城 · 內建輪盤＋扭蛋（純前端可玩）</div>
   </div>
 
   <div class="main">
@@ -155,63 +422,81 @@ body{
       <div class="card">
         <div class="section-title">活動公告</div>
         <div style="font-size:13px;color:#cfcfe6">
-          歡迎來到新春互動娛樂平台。本平台為娛樂互動用途，所有遊玩次數由平台派發。
+          歡迎來到新春互動娛樂平台。這是「正式版前端」：保留首頁 / 遊戲 / 排行榜 / 我的 / 規則客服，
+          並內建可玩的輪盤與扭蛋（目前不接後端）。
         </div>
       </div>
 
       <div class="card">
         <div class="section-title">快速入口</div>
-        <button class="btn" onclick="go('game')">🎮 進入遊戲</button>
+        <div class="row">
+          <button class="btn" onclick="openRoulette()">🎡 輪盤</button>
+          <button class="btn dark" onclick="openGacha()">🥚 扭蛋</button>
+        </div>
       </div>
 
       <div class="card">
         <div class="section-title">最新動態</div>
-        <div style="font-size:12px;color:var(--muted)">系統穩定運行中</div>
+        <div style="font-size:12px;color:var(--muted)">
+          系統穩定運行中 · 建議先把前端遊戲體驗做完整，再接派發次數與 userId。
+        </div>
       </div>
     </div>
 
     <!-- GAME -->
     <div class="view" id="game">
       <div class="card">
-        <div class="section-title">我的遊戲次數</div>
-        <div style="font-size:13px">
-          輪盤次數：<b>3</b><br/>
-          扭蛋次數：<b>2</b>
+        <div class="section-title">遊戲入口</div>
+        <div class="row">
+          <button class="btn" onclick="openRoulette()">🎡 進入輪盤</button>
+          <button class="btn dark" onclick="openGacha()">🥚 進入扭蛋</button>
+        </div>
+        <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.5">
+          目前為純前端版：每次遊玩只做動畫與結果展示。下一階段才接後端扣次數。
         </div>
       </div>
 
       <div class="card">
-        <div class="section-title">遊戲入口</div>
-        <button class="btn">🎡 輪盤遊戲</button><br/><br/>
-        <button class="btn dark">🥚 扭蛋遊戲</button>
+        <div class="section-title">玩法提示</div>
+        <div style="font-size:12px;color:#cfcfe6;line-height:1.7">
+          ✅ 輪盤：點中間「開始轉」或下方按鈕<br/>
+          ✅ 扭蛋：拉把手出球 → 開蛋顯示卡片<br/>
+          （之後會把結果寫到「我的」與排行榜）
+        </div>
       </div>
     </div>
 
     <!-- LEADERBOARD -->
     <div class="view" id="leaderboard">
       <div class="card">
-        <div class="section-title">排行榜</div>
+        <div class="section-title">排行榜（前端示意）</div>
         <div class="rank"><span>1. 玩家A</span><span>🎯 12次</span></div>
         <div class="rank"><span>2. 玩家B</span><span>🎯 9次</span></div>
         <div class="rank"><span>3. 玩家C</span><span>🎯 7次</span></div>
         <div class="rank"><span>4. 玩家D</span><span>🎯 5次</span></div>
+        <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px">
+          下一階段會改成「真資料」：從後端取遊玩/中獎紀錄排行。
+        </div>
       </div>
     </div>
 
     <!-- PROFILE -->
     <div class="view" id="profile">
       <div class="card">
-        <div class="section-title">我的帳號</div>
+        <div class="section-title">我的帳號（前端示意）</div>
         <div class="profile-row"><span>身份來源</span><span>LINE LIFF</span></div>
         <div class="profile-row"><span>使用者狀態</span><span>正常</span></div>
-        <div class="profile-row"><span>遊戲權限</span><span>已授權</span></div>
-        <div class="profile-row"><span>帳號類型</span><span>一般用戶</span></div>
+        <div class="profile-row"><span>遊戲權限</span><span>由平台派發</span></div>
       </div>
 
       <div class="card">
-        <div class="section-title">紀錄</div>
-        <div class="profile-row"><span>輪盤遊玩</span><span>3 次</span></div>
-        <div class="profile-row"><span>扭蛋遊玩</span><span>2 次</span></div>
+        <div class="section-title">我的紀錄（純前端暫存）</div>
+        <div class="profile-row"><span>輪盤遊玩</span><span id="myRouletteCnt">0 次</span></div>
+        <div class="profile-row"><span>扭蛋遊玩</span><span id="myGachaCnt">0 次</span></div>
+        <div class="profile-row"><span>最近一次結果</span><span id="myLast">—</span></div>
+        <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.5">
+          ※ 目前先用瀏覽器暫存（localStorage）記錄，之後接後端會變成真紀錄。
+        </div>
       </div>
     </div>
 
@@ -220,9 +505,9 @@ body{
       <div class="card">
         <div class="section-title">平台聲明</div>
         <div class="rule">
-          本平台為娛樂互動系統，所有遊戲內容僅供娛樂用途。<br/><br/>
-          遊戲次數由平台派發，使用者無法購買、交易或轉讓遊玩次數。<br/><br/>
-          本平台不提供金流服務、不涉及賭博、博弈或抽獎販售機制。<br/><br/>
+          本平台為娛樂互動系統，所有遊戲內容僅供娛樂用途。<br/>
+          遊戲次數由平台派發（下一階段接後端），使用者無法購買、交易或轉讓遊玩次數。<br/>
+          本平台目前不提供金流服務、不涉及賭博、博弈或抽獎販售機制。<br/>
           所有功能皆屬活動互動用途。
         </div>
       </div>
@@ -230,9 +515,12 @@ body{
       <div class="card">
         <div class="section-title">客服支援</div>
         <div class="rule">
-          聯絡方式：<br/>
           Email：support@platform.com<br/>
-          LINE：官方帳號客服
+          LINE：官方帳號客服<br/>
+          回報格式：<br/>
+          1) 你的 LINE 顯示名稱<br/>
+          2) 問題描述<br/>
+          3) 截圖（若有）
         </div>
       </div>
     </div>
@@ -247,10 +535,82 @@ body{
     <div class="tab" onclick="switchTab('profile',this)">👤<br/>我的</div>
     <div class="tab" onclick="switchTab('rules',this)">📜<br/>規則</div>
   </div>
-
 </div>
 
+<!-- Result Modal -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <div class="sheetHead">
+      <b id="modalTitle">結果</b>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <div class="sheetBody">
+      <div id="modalBadge" class="badge">—</div>
+      <div class="resultTitle" id="modalMain">—</div>
+      <div class="resultSub" id="modalSub">—</div>
+      <div class="smallHint">提示：目前是純前端版本；下一階段接後端會變成「派發次數 / 扣次數 / 真紀錄」。</div>
+      <div style="height:10px"></div>
+      <button class="btn" onclick="closeModal()">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- Roulette Overlay -->
+<div class="gameOverlay" id="rouletteOverlay">
+  <div class="gameTop">
+    <div class="t">🎡 輪盤</div>
+    <button class="backBtn" onclick="closeRoulette()">返回</button>
+  </div>
+  <div class="gameArea">
+    <div class="wheelWrap">
+      <div class="pointer"></div>
+      <div class="wheel">
+        <div class="wheelInner" id="wheelInner">
+          <canvas id="wheelCanvas" width="600" height="600" style="width:100%;height:100%;display:block;"></canvas>
+          <div class="centerBtn" onclick="spinRoulette()">
+            <span>開始轉</span><small>好運來</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" style="width:min(360px,92vw)" onclick="spinRoulette()">🎡 開始轉</button>
+    <div class="wheelHint">轉盤純前端版本：會轉、會停、會顯示結果。下一階段接後端扣次數/記錄。</div>
+  </div>
+</div>
+
+<!-- Gacha Overlay -->
+<div class="gameOverlay" id="gachaOverlay">
+  <div class="gameTop">
+    <div class="t">🥚 扭蛋</div>
+    <button class="backBtn" onclick="closeGacha()">返回</button>
+  </div>
+  <div class="gameArea">
+    <div class="gachaMachine">
+      <div class="rarityGlow" id="rarityGlow"></div>
+      <div class="gachaHead">新春扭蛋機</div>
+
+      <div class="glass">
+        <div class="balls" id="balls"></div>
+      </div>
+
+      <div class="coinSlot">🎟️ 派發券（示意）</div>
+
+      <div class="dropZone">
+        <div class="capsule" id="capsule"></div>
+      </div>
+
+      <div class="handle" onclick="pullHandle()">拉把手抽一次</div>
+    </div>
+
+    <div class="wheelHint">扭蛋純前端版本：拉把手 → 出球 → 開蛋 → 顯示稀有度與結果。</div>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
 <script>
+/* ---------------- Tabs ---------------- */
 function switchTab(id,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -258,10 +618,289 @@ function switchTab(id,el){
   el.classList.add('active');
 }
 
-function go(id){
-  switchTab(id, document.querySelector(`.tabbar .tab[onclick*="${id}"]`) || document.querySelectorAll('.tab')[1]);
-}
-</script>
+/* ---------------- Modal ---------------- */
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+const modalBadge = document.getElementById("modalBadge");
+const modalMain = document.getElementById("modalMain");
+const modalSub = document.getElementById("modalSub");
 
+function openModal({title="結果", badgeText="—", badgeKind="", main="—", sub="—"}){
+  modalTitle.textContent = title;
+  modalBadge.textContent = badgeText;
+  modalBadge.className = "badge" + (badgeKind ? " " + badgeKind : "");
+  modalMain.textContent = main;
+  modalSub.textContent = sub;
+  modal.classList.add("show");
+}
+function closeModal(){ modal.classList.remove("show"); }
+
+/* ---------------- Local record (pure frontend) ---------------- */
+const LS_KEY = "ny_platform_records_v1";
+function loadRec(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }catch{ return {}; }
+}
+function saveRec(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+
+function bumpRec(type, lastText){
+  const r = loadRec();
+  r.rouletteCnt = r.rouletteCnt || 0;
+  r.gachaCnt = r.gachaCnt || 0;
+  if(type === "roulette") r.rouletteCnt += 1;
+  if(type === "gacha") r.gachaCnt += 1;
+  if(lastText) r.last = lastText;
+  saveRec(r);
+  renderRec();
+}
+function renderRec(){
+  const r = loadRec();
+  document.getElementById("myRouletteCnt").textContent = (r.rouletteCnt || 0) + " 次";
+  document.getElementById("myGachaCnt").textContent = (r.gachaCnt || 0) + " 次";
+  document.getElementById("myLast").textContent = r.last || "—";
+}
+renderRec();
+
+/* ---------------- Confetti ---------------- */
+const confetti = document.getElementById("confetti");
+function burstConfetti(count){
+  confetti.innerHTML = "";
+  const colors = ["#f6d17b","#e7b84f","#ffffff","rgba(255,255,255,.75)"];
+  for(let i=0;i<count;i++){
+    const el = document.createElement("i");
+    el.style.left = (Math.random()*100) + "vw";
+    el.style.animationDuration = (1.3 + Math.random()*1.3) + "s";
+    el.style.width = (6 + Math.random()*10) + "px";
+    el.style.height = (10 + Math.random()*18) + "px";
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    confetti.appendChild(el);
+
+    el.animate(
+      [
+        { transform: `translateY(0) translateX(0) rotate(0deg)` },
+        { transform: `translateY(110vh) translateX(${(Math.random()*2-1)*140}px) rotate(${360+Math.random()*360}deg)` }
+      ],
+      { duration: (1400 + Math.random()*1200), fill: "forwards", easing: "linear" }
+    );
+  }
+  setTimeout(()=>{ confetti.innerHTML=""; }, 2600);
+}
+
+/* ---------------- Roulette Game ---------------- */
+const rouletteOverlay = document.getElementById("rouletteOverlay");
+const wheelInner = document.getElementById("wheelInner");
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2;
+const radius=275;
+
+const ROULETTE_PRIZES = [
+  { name:"RP +5", weight:50, badge:"普通", kind:"ok" },
+  { name:"RP +10", weight:20, badge:"加倍", kind:"ok" },
+  { name:"再來一次 +1", weight:12, badge:"幸運", kind:"warn" },
+  { name:"扭蛋券 +1", weight:10, badge:"券", kind:"warn" },
+  { name:"獎券 +1", weight:6, badge:"稀有", kind:"warn" },
+  { name:"金獎碎片 +1", weight:2, badge:"傳說", kind:"bad" }
+];
+const n = ROULETTE_PRIZES.length;
+const slice = (Math.PI*2)/n;
+
+let spinning=false;
+let currentRotation=0; // degrees
+
+function drawWheel(){
+  ctx.clearRect(0,0,W,H);
+  // base
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI*2);
+  ctx.fillStyle = "#7f0000";
+  ctx.fill();
+
+  for(let i=0;i<n;i++){
+    const a0 = i*slice - Math.PI/2;
+    const a1 = a0 + slice;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, radius, a0, a1);
+    ctx.closePath();
+
+    ctx.fillStyle = (i%2===0) ? "rgba(242,195,107,.30)" : "rgba(0,0,0,.18)";
+    ctx.fill();
+
+    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(a0 + slice/2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "rgba(255,255,255,.95)";
+    ctx.font = "900 26px system-ui,-apple-system,Segoe UI,Noto Sans TC,sans-serif";
+    ctx.fillText(ROULETTE_PRIZES[i].name, radius-18, 10);
+    ctx.restore();
+  }
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius-12, 0, Math.PI*2);
+  ctx.strokeStyle = "rgba(242,195,107,.25)";
+  ctx.lineWidth = 10;
+  ctx.stroke();
+}
+drawWheel();
+
+function pickWeighted(items){
+  const total = items.reduce((s,p)=>s+p.weight,0);
+  let r = Math.random()*total;
+  for(let i=0;i<items.length;i++){
+    r -= items[i].weight;
+    if(r<=0) return i;
+  }
+  return items.length-1;
+}
+
+function openRoulette(){
+  rouletteOverlay.classList.add("show");
+}
+function closeRoulette(){
+  rouletteOverlay.classList.remove("show");
+}
+
+function spinRoulette(){
+  if(spinning) return;
+  spinning=true;
+
+  const idx = pickWeighted(ROULETTE_PRIZES);
+  const prize = ROULETTE_PRIZES[idx];
+
+  const degPer = 360/n;
+  const targetCenter = (idx + 0.5) * degPer;
+  const extraSpins = 6;
+  const finalRotation = extraSpins*360 + (360 - targetCenter);
+
+  const nextRotation = currentRotation + finalRotation;
+  wheelInner.classList.add("spin");
+  wheelInner.style.transform = `rotate(${nextRotation}deg)`;
+
+  setTimeout(()=>{
+    currentRotation = nextRotation % 360;
+    spinning=false;
+
+    const isRare = prize.weight <= 6;
+    const isLegend = prize.weight <= 2;
+    if(isLegend) burstConfetti(90);
+    else if(isRare) burstConfetti(55);
+    else burstConfetti(22);
+
+    bumpRec("roulette", "輪盤：" + prize.name);
+
+    openModal({
+      title:"🎡 輪盤結果",
+      badgeText: prize.badge,
+      badgeKind: prize.kind,
+      main: prize.name,
+      sub: isLegend ? "恭喜抽到傳說級！" : "新春好運來～"
+    });
+  }, 4250);
+}
+
+/* ---------------- Gacha Game ---------------- */
+const gachaOverlay = document.getElementById("gachaOverlay");
+const balls = document.getElementById("balls");
+const capsule = document.getElementById("capsule");
+const rarityGlow = document.getElementById("rarityGlow");
+
+const GACHA_POOL = [
+  { name:"N 普通獎", weight:75, badge:"N", kind:"ok", glow:"" },
+  { name:"R 稀有獎", weight:20, badge:"R", kind:"warn", glow:"" },
+  { name:"SR 超稀有", weight:4.5, badge:"SR", kind:"warn", glow:"sr" },
+  { name:"SSR 傳說", weight:0.5, badge:"SSR", kind:"bad", glow:"ssr" }
+];
+
+function openGacha(){
+  gachaOverlay.classList.add("show");
+}
+function closeGacha(){
+  gachaOverlay.classList.remove("show");
+}
+
+function seedBalls(){
+  balls.innerHTML = "";
+  for(let i=0;i<18;i++){
+    const b=document.createElement("div");
+    b.className="ball";
+    b.style.left = (8 + Math.random()*84) + "%";
+    b.style.top = (8 + Math.random()*84) + "%";
+    b.style.transform = `scale(${0.8 + Math.random()*0.5})`;
+    balls.appendChild(b);
+  }
+}
+seedBalls();
+
+let pulling=false;
+function pullHandle(){
+  if(pulling) return;
+  pulling=true;
+
+  // reset visuals
+  rarityGlow.className = "rarityGlow";
+  capsule.className = "capsule";
+  capsule.style.top = "-60px";
+  capsule.classList.add("show");
+
+  // little shake balls
+  balls.querySelectorAll(".ball").forEach((b, idx)=>{
+    b.animate(
+      [{ transform: b.style.transform + " translateY(0)" }, { transform: b.style.transform + " translateY(-8px)" }, { transform: b.style.transform + " translateY(0)" }],
+      { duration: 420 + (idx%6)*20, iterations: 2, easing:"ease-in-out" }
+    );
+  });
+
+  // fall
+  setTimeout(()=>{
+    capsule.classList.add("fall");
+  }, 120);
+
+  // decide result
+  const idx = pickWeighted(GACHA_POOL);
+  const item = GACHA_POOL[idx];
+
+  // after fall, open result
+  setTimeout(()=>{
+    // glow for SR/SSR
+    if(item.glow){
+      rarityGlow.classList.add("on");
+      rarityGlow.classList.add(item.glow);
+    }
+
+    const isLegend = item.badge === "SSR";
+    const isSR = item.badge === "SR";
+    if(isLegend) burstConfetti(110);
+    else if(isSR) burstConfetti(70);
+    else burstConfetti(28);
+
+    bumpRec("gacha", "扭蛋：" + item.name);
+
+    openModal({
+      title:"🥚 扭蛋結果",
+      badgeText: item.badge,
+      badgeKind: item.kind,
+      main: item.name,
+      sub: isLegend ? "SSR 出現！太扯了！" : (isSR ? "SR 不錯喔～" : "再來一次也行！")
+    });
+
+    pulling=false;
+  }, 980);
+}
+
+/* -------------- Quality-of-life -------------- */
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "Escape"){
+    closeModal();
+    closeRoulette();
+    closeGacha();
+  }
+});
+</script>
 </body>
 </html>
