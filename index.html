@@ -73,10 +73,7 @@ body{
 }
 .l1{left:10px; transform-origin:50% 0%; animation:sway 3.4s ease-in-out infinite alternate}
 .l2{right:10px; transform-origin:50% 0%; animation:sway 3.0s ease-in-out infinite alternate-reverse}
-@keyframes sway{
-  from{ transform:rotate(-3deg) translateY(0) }
-  to{ transform:rotate(3deg) translateY(2px) }
-}
+@keyframes sway{ from{ transform:rotate(-3deg) translateY(0) } to{ transform:rotate(3deg) translateY(2px) } }
 
 /* banner */
 .banner{
@@ -125,20 +122,6 @@ body{
 .rank,.profile-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}
 .rule{font-size:12px;line-height:1.75;color:#d7dbeb}
 
-/* modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:14px}
-.modal.show{display:flex}
-.sheet{width:min(520px,100%);background:linear-gradient(180deg,#1a1a26,#141421);border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.55);overflow:hidden}
-.sheetHead{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
-.sheetHead b{font-size:14px}
-.sheetHead button{border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;opacity:.8}
-.sheetBody{padding:14px}
-.badge.ok{border-color:rgba(61,220,151,.35); background:rgba(61,220,151,.08)}
-.badge.warn{border-color:rgba(255,204,102,.35); background:rgba(255,204,102,.08)}
-.badge.bad{border-color:rgba(255,107,107,.35); background:rgba(255,107,107,.08)}
-.resultTitle{font-weight:1000;font-size:18px;margin:8px 0 6px}
-.resultSub{color:var(--muted);font-size:12px;line-height:1.55}
-
 /* overlay */
 .gameOverlay{
   position:fixed;inset:0;display:none;z-index:60;
@@ -153,7 +136,7 @@ body{
 .backBtn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:10px 12px;font-weight:1000;cursor:pointer}
 .gameArea{padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center}
 
-/* couplets fixed in roulette view */
+/* couplets */
 .coupletWrap{
   width:min(440px, 96vw);
   display:flex;
@@ -196,10 +179,12 @@ body{
   font-weight:1000;
 }
 
-/* roulette */
-.wheelWrap{width:min(360px, 92vw);height:min(360px, 92vw);position:relative}
-
-/* pointer tick */
+/* roulette - keep perfect circle */
+.wheelWrap{
+  width:min(360px, 92vw);
+  aspect-ratio:1/1;      /* ✅ 永遠正圓 */
+  position:relative;
+}
 .pointer{
   position:absolute;top:-6px;left:50%;transform:translateX(-50%);
   width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:22px solid var(--gold);
@@ -216,15 +201,13 @@ body{
   40%{ transform:translateX(-50%) rotate(-10deg) }
   100%{ transform:translateX(-50%) rotate(0deg) }
 }
-
 .wheel{
-  width:100%;height:100%;border-radius:50%;
+  width:100%;height:100%;
+  border-radius:50%;
   padding:10px;
   background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.22), rgba(0,0,0,.35));
   position:relative;
 }
-
-/* sparkle ring */
 .sparkleRing{
   position:absolute;inset:8px;border-radius:50%;
   border:1px solid rgba(242,195,107,.22);
@@ -234,7 +217,6 @@ body{
 }
 @keyframes shimmer{to{opacity:.75;filter:brightness(1.15)}}
 
-/* gold flash for ritual */
 .flash{
   position:absolute;inset:-20px;border-radius:50%;
   background:radial-gradient(circle at 50% 50%, rgba(242,195,107,.35), transparent 60%);
@@ -249,9 +231,9 @@ body{
   100%{opacity:0; transform:scale(1.05)}
 }
 
-/* wheel inner - true circle */
 .wheelInner{
-  width:100%;height:100%;border-radius:50%;
+  width:100%;height:100%;
+  border-radius:50%;
   border:2px solid rgba(255,255,255,.18);
   overflow:hidden;
   background:linear-gradient(180deg, rgba(179,0,0,.25), rgba(127,0,0,.28));
@@ -271,16 +253,85 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   color:#7f0000;font-weight:1000;user-select:none;
   transition: transform .12s ease, filter .12s ease;
+  z-index:5;
 }
 .centerBtn span{font-size:14px}
 .centerBtn small{font-size:10px;opacity:.9;margin-top:3px}
-.centerBtn.boom{
-  transform:translate(-50%,-50%) scale(1.03);
-  filter:brightness(1.08);
-}
+.centerBtn.boom{ transform:translate(-50%,-50%) scale(1.03); filter:brightness(1.08); }
 .centerBtn:active{transform:translate(-50%,-50%) scale(.985)}
-
 .wheelHint{width:min(360px,92vw);color:rgba(255,255,255,.72);font-size:12px;line-height:1.55;text-align:center}
+
+/* ✅ Result panel inside roulette (NO leaving) */
+.resultPanel{
+  width:min(440px, 96vw);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(26,26,38,.92), rgba(20,20,33,.88));
+  border:1px solid rgba(242,195,107,.20);
+  box-shadow:0 18px 60px rgba(0,0,0,.55);
+  padding:12px 12px;
+  display:none;
+  position:relative;
+  overflow:hidden;
+}
+.resultPanel.show{display:block; animation: pop .18s ease-out 1;}
+@keyframes pop{
+  from{ transform:translateY(8px); opacity:.0 }
+  to{ transform:translateY(0); opacity:1 }
+}
+.resultPanel::after{
+  content:"";
+  position:absolute; inset:-60%;
+  background: radial-gradient(circle at 30% 30%, rgba(242,195,107,.18), transparent 55%);
+  transform:rotate(20deg);
+}
+.resultTop{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  position:relative; z-index:1;
+}
+.resultTop b{font-size:13px}
+.closeX{
+  border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;opacity:.85;
+}
+.resultMain{
+  position:relative; z-index:1;
+  font-weight:1000; font-size:18px; margin-top:6px;
+}
+.resultSub{
+  position:relative; z-index:1;
+  color:rgba(255,255,255,.72); font-size:12px; line-height:1.55; margin-top:6px;
+}
+.pill{
+  position:relative; z-index:1;
+  display:inline-flex; align-items:center;
+  padding:4px 10px; border-radius:999px;
+  font-weight:1000; font-size:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+}
+.pill.ok{border-color:rgba(61,220,151,.35); background:rgba(61,220,151,.08)}
+.pill.warn{border-color:rgba(255,204,102,.35); background:rgba(255,204,102,.08)}
+.pill.bad{border-color:rgba(255,107,107,.35); background:rgba(255,107,107,.08)}
+.resultBtns{
+  position:relative; z-index:1;
+  display:flex; gap:10px; margin-top:10px;
+}
+.resultBtns button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.primary{
+  background:linear-gradient(180deg,#f6d17b,#e7b84f);
+  color:#000;
+}
+.ghost{
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.12);
+}
 
 /* confetti */
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:80;overflow:hidden}
@@ -295,7 +346,7 @@ body{
     <div class="lantern l2"></div>
 
     <div class="title">新春輪盤活動</div>
-    <div class="sub">台灣新年氛圍 · 轉盤內分級顏色 · 轉完彈窗 → 關掉即可下一次</div>
+    <div class="sub">轉完直接在輪盤畫面顯示結果（不用返回）</div>
 
     <div class="banner">
       <span class="badge red">🧧 迎春</span>
@@ -322,8 +373,8 @@ body{
       <div class="card">
         <div class="section-title">活動公告</div>
         <div style="font-size:13px;color:#d7dbeb;line-height:1.7">
-          ✅ 流程就是你要的：在輪盤畫面直接轉 → 彈出結果 → 關掉就能立刻再轉。<br/>
-          ✅ 左右春聯固定、按下有「咚」儀式感、獎項顏色分級更明顯。
+          ✅ 轉完直接在輪盤畫面顯示結果卡，不用返回。<br/>
+          ✅ 關掉結果卡即可立刻再轉。
         </div>
       </div>
 
@@ -340,9 +391,6 @@ body{
       <div class="card">
         <div class="section-title">輪盤遊戲</div>
         <button class="btn" onclick="openRoulette()">🧧 開始轉 · 拚好彩頭</button>
-        <div style="margin-top:10px;color:rgba(255,255,255,.70);font-size:12px;line-height:1.55">
-          音效先不做；下一步要加我可以加「爆竹啪、咚」兩段音效（可開關）。
-        </div>
       </div>
     </div>
 
@@ -383,27 +431,6 @@ body{
   </div>
 </div>
 
-<!-- modal -->
-<div class="modal" id="modal">
-  <div class="sheet">
-    <div class="sheetHead">
-      <b id="modalTitle">結果</b>
-      <button onclick="closeModal()">✕</button>
-    </div>
-    <div class="sheetBody">
-      <div id="modalBadge" class="badge">—</div>
-      <div class="resultTitle" id="modalMain">—</div>
-      <div class="resultSub" id="modalSub">—</div>
-      <div style="height:10px"></div>
-      <!-- ✅ 這個按鈕不會離開輪盤，只關掉彈窗，立刻可再轉 -->
-      <button class="btn" onclick="closeModal()">再轉一次</button>
-      <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
-        提示：關掉彈窗後，你仍留在輪盤畫面，可直接再按「開始轉」。
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- roulette overlay -->
 <div class="gameOverlay" id="rouletteOverlay">
   <div class="gameTop">
@@ -412,6 +439,24 @@ body{
   </div>
 
   <div class="gameArea">
+
+    <!-- ✅ result panel shows INSIDE roulette view -->
+    <div class="resultPanel" id="resultPanel">
+      <div class="resultTop">
+        <b>🧧 轉盤結果</b>
+        <button class="closeX" onclick="hideResult()">✕</button>
+      </div>
+      <div style="margin-top:8px">
+        <span class="pill" id="resultPill">—</span>
+      </div>
+      <div class="resultMain" id="resultMain">—</div>
+      <div class="resultSub" id="resultSub">—</div>
+      <div class="resultBtns">
+        <button class="primary" onclick="spinAgain()">再轉一次</button>
+        <button class="ghost" onclick="hideResult()">關閉</button>
+      </div>
+    </div>
+
     <div class="coupletWrap">
       <div class="couplet"><p>招財進寶<em>春</em></p></div>
 
@@ -433,7 +478,7 @@ body{
     </div>
 
     <button class="btn" style="width:min(360px,92vw)" onclick="spinRoulette()">🧧 開始轉 · 拚好彩頭</button>
-    <div class="wheelHint">輪盤轉完彈窗顯示結果，關掉彈窗即可直接下一次。</div>
+    <div class="wheelHint">轉完會直接在此畫面顯示結果卡，不用返回任何頁面。</div>
   </div>
 </div>
 
@@ -448,24 +493,8 @@ function switchTab(id,el){
   el.classList.add('active');
 }
 
-/* modal */
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const modalBadge = document.getElementById("modalBadge");
-const modalMain = document.getElementById("modalMain");
-const modalSub = document.getElementById("modalSub");
-function openModal({title="結果", badgeText="—", badgeKind="", main="—", sub="—"}){
-  modalTitle.textContent = title;
-  modalBadge.textContent = badgeText;
-  modalBadge.className = "badge" + (badgeKind ? " " + badgeKind : "");
-  modalMain.textContent = main;
-  modalSub.textContent = sub;
-  modal.classList.add("show");
-}
-function closeModal(){ modal.classList.remove("show"); }
-
 /* local record */
-const LS_KEY = "tw_ny_roulette_records_v3";
+const LS_KEY = "tw_ny_roulette_records_v4";
 function loadRec(){ try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }catch{ return {}; } }
 function saveRec(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
 function bumpRec(lastText){
@@ -520,6 +549,25 @@ const rouletteOverlay = document.getElementById("rouletteOverlay");
 function openRoulette(){ rouletteOverlay.classList.add("show"); }
 function closeRoulette(){ rouletteOverlay.classList.remove("show"); }
 
+/* result panel (inside roulette) */
+const resultPanel = document.getElementById("resultPanel");
+const resultPill = document.getElementById("resultPill");
+const resultMain = document.getElementById("resultMain");
+const resultSub = document.getElementById("resultSub");
+
+function showResult({pillText, pillKind, main, sub}){
+  resultPill.textContent = pillText;
+  resultPill.className = "pill " + (pillKind || "");
+  resultMain.textContent = main;
+  resultSub.textContent = sub;
+  resultPanel.classList.add("show");
+}
+function hideResult(){ resultPanel.classList.remove("show"); }
+function spinAgain(){
+  hideResult();
+  spinRoulette();
+}
+
 /* roulette elements */
 const wheelInner = document.getElementById("wheelInner");
 const pointer = document.getElementById("pointer");
@@ -532,15 +580,15 @@ const ctx = canvas.getContext("2d");
 const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2;
 const radius=275;
 
-/* prizes with clear color tier */
+/* prizes with tier colors */
 const PRIZES = [
-  { name:"🍍 旺來好運", weight:28, tier:"common", badge:"旺", kind:"ok", sub:"旺旺來！新的一年順順利利。" },
-  { name:"🧧 紅包加持", weight:22, tier:"common", badge:"福", kind:"ok", sub:"福氣滿滿，恭喜發財！" },
-  { name:"🏮 平安順心", weight:18, tier:"common", badge:"安", kind:"ok", sub:"平安順心，日日是好日。" },
-  { name:"🧨 爆竹大吉", weight:14, tier:"rare",   badge:"吉", kind:"warn", sub:"爆竹一響，萬事如意！" },
-  { name:"🎯 好彩頭",   weight:10, tier:"rare",   badge:"喜", kind:"warn", sub:"有彩頭，做啥都順！" },
-  { name:"👑 超級好運", weight:6,  tier:"jackpot",badge:"大獎", kind:"bad", sub:"今天運勢爆棚！" },
-  { name:"✨ 再轉一次", weight:2,  tier:"jackpot",badge:"Lucky",kind:"bad", sub:"你是被選中的人，再來一次！", extraSpin:true }
+  { name:"🍍 旺來好運", weight:28, tier:"common", pill:"旺", pillKind:"ok",  sub:"旺旺來！新的一年順順利利。" },
+  { name:"🧧 紅包加持", weight:22, tier:"common", pill:"福", pillKind:"ok",  sub:"福氣滿滿，恭喜發財！" },
+  { name:"🏮 平安順心", weight:18, tier:"common", pill:"安", pillKind:"ok",  sub:"平安順心，日日是好日。" },
+  { name:"🧨 爆竹大吉", weight:14, tier:"rare",   pill:"吉", pillKind:"warn",sub:"爆竹一響，萬事如意！" },
+  { name:"🎯 好彩頭",   weight:10, tier:"rare",   pill:"喜", pillKind:"warn",sub:"有彩頭，做啥都順！" },
+  { name:"👑 超級好運", weight:6,  tier:"jackpot",pill:"大獎",pillKind:"bad", sub:"今天運勢爆棚！" },
+  { name:"✨ 再轉一次", weight:2,  tier:"jackpot",pill:"Lucky",pillKind:"bad",sub:"你是被選中的人，再來一次！", extraSpin:true }
 ];
 
 const n = PRIZES.length;
@@ -551,19 +599,13 @@ let currentRotation=0;
 
 function tierFill(i){
   const t = PRIZES[i].tier;
-  if(t === "jackpot"){
-    return (i%2===0) ? "rgba(242,195,107,.38)" : "rgba(255,107,107,.22)";
-  }
-  if(t === "rare"){
-    return (i%2===0) ? "rgba(255,204,102,.18)" : "rgba(179,0,0,.24)";
-  }
+  if(t === "jackpot") return (i%2===0) ? "rgba(242,195,107,.42)" : "rgba(255,107,107,.24)";
+  if(t === "rare")   return (i%2===0) ? "rgba(255,204,102,.18)" : "rgba(179,0,0,.24)";
   return (i%2===0) ? "rgba(179,0,0,.28)" : "rgba(0,0,0,.14)";
 }
 
 function drawWheel(){
   ctx.clearRect(0,0,W,H);
-
-  // base glow
   const grd = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
   grd.addColorStop(0, "rgba(242,195,107,.22)");
   grd.addColorStop(1, "rgba(0,0,0,.25)");
@@ -582,9 +624,8 @@ function drawWheel(){
     ctx.fillStyle = tierFill(i);
     ctx.fill();
 
-    // highlight for jackpot sectors
     if(PRIZES[i].tier === "jackpot"){
-      ctx.strokeStyle = "rgba(242,195,107,.55)";
+      ctx.strokeStyle = "rgba(242,195,107,.60)";
       ctx.lineWidth = 5;
       ctx.stroke();
     }else{
@@ -593,7 +634,6 @@ function drawWheel(){
       ctx.stroke();
     }
 
-    // text
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(a0 + slice/2);
@@ -606,7 +646,6 @@ function drawWheel(){
     ctx.restore();
   }
 
-  // outer ring
   ctx.beginPath(); ctx.arc(cx, cy, radius-12, 0, Math.PI*2);
   ctx.strokeStyle = "rgba(242,195,107,.34)";
   ctx.lineWidth = 10;
@@ -629,8 +668,6 @@ function tickPointer(){
   void pointer.offsetWidth;
   pointer.classList.add("tick");
 }
-
-/* ritual "boom" */
 function ritualBoom(){
   centerBtn.classList.add("boom");
   flash.classList.remove("on");
@@ -641,10 +678,13 @@ function ritualBoom(){
 
 function spinRoulette(){
   if(spinning) return;
-  spinning=true;
 
-  ritualBoom();           // ✅ 咚 + 金粉閃一下
-  tickPointer();          // ✅ 指針咔哒
+  // ✅ 如果結果卡還在，先收起（避免遮住）
+  hideResult();
+
+  spinning=true;
+  ritualBoom();
+  tickPointer();
   setTimeout(tickPointer, 420);
   setTimeout(tickPointer, 820);
 
@@ -672,25 +712,24 @@ function spinRoulette(){
 
     bumpRec("輪盤：" + prize.name);
 
-    openModal({
-      title:"🧧 新春輪盤結果",
-      badgeText: prize.badge,
-      badgeKind: prize.kind,
+    // ✅ 核心：結果直接顯示在輪盤畫面內
+    showResult({
+      pillText: prize.pill,
+      pillKind: prize.pillKind,
       main: prize.name,
       sub: prize.sub
     });
 
-    // ✅ 仍留在輪盤畫面；彈窗關掉就能再轉
-    // 小彩蛋：再轉一次自動幫你再轉（如果你不想自動，我也可以改成手動）
+    // 小彩蛋：再轉一次自動轉（你不要的話我也可以關掉）
     if(prize.extraSpin){
-      setTimeout(()=>{ closeModal(); spinRoulette(); }, 700);
+      setTimeout(()=>{ spinAgain(); }, 850);
     }
   }, 3150);
 }
 
 /* escape */
 document.addEventListener("keydown",(e)=>{
-  if(e.key==="Escape"){ closeModal(); closeRoulette(); }
+  if(e.key==="Escape"){ hideResult(); closeRoulette(); }
 });
 </script>
 </body>
