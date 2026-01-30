@@ -153,7 +153,7 @@ body{
 .backBtn{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;border-radius:12px;padding:10px 12px;font-weight:1000;cursor:pointer}
 .gameArea{padding:16px;display:flex;flex-direction:column;gap:12px;align-items:center}
 
-/* couplets (Taiwan vibe) */
+/* couplets fixed in roulette view */
 .coupletWrap{
   width:min(440px, 96vw);
   display:flex;
@@ -162,14 +162,22 @@ body{
   gap:10px;
 }
 .couplet{
-  width:52px;
-  border-radius:16px;
-  background:linear-gradient(180deg, rgba(179,0,0,.35), rgba(127,0,0,.25));
-  border:1px solid rgba(242,195,107,.18);
+  width:56px;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(179,0,0,.40), rgba(127,0,0,.25));
+  border:1px solid rgba(242,195,107,.22);
   box-shadow:0 18px 50px rgba(179,0,0,.15);
   padding:10px 8px;
   display:flex;
   justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.couplet::after{
+  content:"";
+  position:absolute; inset:-50%;
+  background: radial-gradient(circle at 30% 30%, rgba(242,195,107,.20), transparent 55%);
+  transform:rotate(20deg);
 }
 .couplet p{
   margin:0;
@@ -178,6 +186,7 @@ body{
   letter-spacing:2px;
   font-weight:1000;
   color:rgba(255,255,255,.92);
+  z-index:1;
 }
 .couplet em{
   display:block;
@@ -189,6 +198,8 @@ body{
 
 /* roulette */
 .wheelWrap{width:min(360px, 92vw);height:min(360px, 92vw);position:relative}
+
+/* pointer tick */
 .pointer{
   position:absolute;top:-6px;left:50%;transform:translateX(-50%);
   width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:22px solid var(--gold);
@@ -205,11 +216,15 @@ body{
   40%{ transform:translateX(-50%) rotate(-10deg) }
   100%{ transform:translateX(-50%) rotate(0deg) }
 }
+
 .wheel{
-  width:100%;height:100%;border-radius:50%;padding:10px;
+  width:100%;height:100%;border-radius:50%;
+  padding:10px;
   background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.22), rgba(0,0,0,.35));
   position:relative;
 }
+
+/* sparkle ring */
 .sparkleRing{
   position:absolute;inset:8px;border-radius:50%;
   border:1px solid rgba(242,195,107,.22);
@@ -219,6 +234,22 @@ body{
 }
 @keyframes shimmer{to{opacity:.75;filter:brightness(1.15)}}
 
+/* gold flash for ritual */
+.flash{
+  position:absolute;inset:-20px;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%, rgba(242,195,107,.35), transparent 60%);
+  opacity:0;
+  pointer-events:none;
+  z-index:3;
+}
+.flash.on{animation: flash 0.55s ease-out 1;}
+@keyframes flash{
+  0%{opacity:0; transform:scale(.92)}
+  35%{opacity:1; transform:scale(1)}
+  100%{opacity:0; transform:scale(1.05)}
+}
+
+/* wheel inner - true circle */
 .wheelInner{
   width:100%;height:100%;border-radius:50%;
   border:2px solid rgba(255,255,255,.18);
@@ -228,20 +259,25 @@ body{
   transform:rotate(0deg);
 }
 .wheelInner.spin{
-  /* 更短、更俐落，不再拖慢 */
-  transition: transform 3.2s cubic-bezier(.12,.85,.08,1);
+  transition: transform 3.1s cubic-bezier(.12,.85,.08,1);
 }
+
 .centerBtn{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:96px;height:96px;border-radius:50%;
+  width:98px;height:98px;border-radius:50%;
   background:radial-gradient(circle at 30% 30%, #fff, var(--gold2));
   border:2px solid rgba(255,255,255,.32);
   box-shadow:0 16px 40px rgba(0,0,0,.45);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   color:#7f0000;font-weight:1000;user-select:none;
+  transition: transform .12s ease, filter .12s ease;
 }
 .centerBtn span{font-size:14px}
 .centerBtn small{font-size:10px;opacity:.9;margin-top:3px}
+.centerBtn.boom{
+  transform:translate(-50%,-50%) scale(1.03);
+  filter:brightness(1.08);
+}
 .centerBtn:active{transform:translate(-50%,-50%) scale(.985)}
 
 .wheelHint{width:min(360px,92vw);color:rgba(255,255,255,.72);font-size:12px;line-height:1.55;text-align:center}
@@ -259,7 +295,7 @@ body{
     <div class="lantern l2"></div>
 
     <div class="title">新春輪盤活動</div>
-    <div class="sub">台灣新年氛圍 · 先把輪盤做到像活動正式版</div>
+    <div class="sub">台灣新年氛圍 · 轉盤內分級顏色 · 轉完彈窗 → 關掉即可下一次</div>
 
     <div class="banner">
       <span class="badge red">🧧 迎春</span>
@@ -286,8 +322,8 @@ body{
       <div class="card">
         <div class="section-title">活動公告</div>
         <div style="font-size:13px;color:#d7dbeb;line-height:1.7">
-          目前版本是<strong>純前端正式視覺</strong>：重點是「新春喜氣 + 轉盤儀式感」。<br/>
-          下一階段才接：派發次數 / 扣次數 / 真排行。
+          ✅ 流程就是你要的：在輪盤畫面直接轉 → 彈出結果 → 關掉就能立刻再轉。<br/>
+          ✅ 左右春聯固定、按下有「咚」儀式感、獎項顏色分級更明顯。
         </div>
       </div>
 
@@ -303,9 +339,9 @@ body{
     <div class="view" id="game">
       <div class="card">
         <div class="section-title">輪盤遊戲</div>
-        <button class="btn" onclick="openRoulette()">🧧 開始轉 · 旺旺來</button>
+        <button class="btn" onclick="openRoulette()">🧧 開始轉 · 拚好彩頭</button>
         <div style="margin-top:10px;color:rgba(255,255,255,.70);font-size:12px;line-height:1.55">
-          新增：左右春聯、金粉光圈、指針咔哒感、轉速更俐落。
+          音效先不做；下一步要加我可以加「爆竹啪、咚」兩段音效（可開關）。
         </div>
       </div>
     </div>
@@ -316,9 +352,6 @@ body{
         <div class="rank"><span>1. 玩家A</span><span>🎯 12次</span></div>
         <div class="rank"><span>2. 玩家B</span><span>🎯 9次</span></div>
         <div class="rank"><span>3. 玩家C</span><span>🎯 7次</span></div>
-        <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
-          之後會接真資料：每日榜 / 活動榜。
-        </div>
       </div>
     </div>
 
@@ -327,9 +360,6 @@ body{
         <div class="section-title">我的紀錄（暫存）</div>
         <div class="profile-row"><span>輪盤遊玩</span><span id="myRouletteCnt">0 次</span></div>
         <div class="profile-row"><span>最近一次結果</span><span id="myLast">—</span></div>
-        <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
-          ※ 目前用 localStorage 暫存；接後端後會變真紀錄。
-        </div>
       </div>
     </div>
 
@@ -339,14 +369,6 @@ body{
         <div class="rule">
           本活動為新春娛樂互動用途。後續會加入「平台派發次數」：使用者無法購買、交易或轉讓遊玩次數。<br/>
           本平台不提供金流服務，不涉及賭博、博弈或抽獎販售機制。
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">客服支援</div>
-        <div class="rule">
-          Email：support@platform.com<br/>
-          LINE：官方帳號客服
         </div>
       </div>
     </div>
@@ -373,7 +395,11 @@ body{
       <div class="resultTitle" id="modalMain">—</div>
       <div class="resultSub" id="modalSub">—</div>
       <div style="height:10px"></div>
-      <button class="btn" onclick="closeModal()">好的</button>
+      <!-- ✅ 這個按鈕不會離開輪盤，只關掉彈窗，立刻可再轉 -->
+      <button class="btn" onclick="closeModal()">再轉一次</button>
+      <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
+        提示：關掉彈窗後，你仍留在輪盤畫面，可直接再按「開始轉」。
+      </div>
     </div>
   </div>
 </div>
@@ -393,9 +419,10 @@ body{
         <div class="pointer" id="pointer"></div>
         <div class="wheel">
           <div class="sparkleRing"></div>
+          <div class="flash" id="flash"></div>
           <div class="wheelInner" id="wheelInner">
             <canvas id="wheelCanvas" width="600" height="600" style="width:100%;height:100%;display:block;"></canvas>
-            <div class="centerBtn" onclick="spinRoulette()">
+            <div class="centerBtn" id="centerBtn" onclick="spinRoulette()">
               <span>開始轉</span><small>恭喜發財</small>
             </div>
           </div>
@@ -406,7 +433,7 @@ body{
     </div>
 
     <button class="btn" style="width:min(360px,92vw)" onclick="spinRoulette()">🧧 開始轉 · 拚好彩頭</button>
-    <div class="wheelHint">現在轉動時間更短更俐落，不會拖慢；大獎會有更強紙花煙火。</div>
+    <div class="wheelHint">輪盤轉完彈窗顯示結果，關掉彈窗即可直接下一次。</div>
   </div>
 </div>
 
@@ -438,7 +465,7 @@ function openModal({title="結果", badgeText="—", badgeKind="", main="—", s
 function closeModal(){ modal.classList.remove("show"); }
 
 /* local record */
-const LS_KEY = "tw_ny_roulette_records_v2";
+const LS_KEY = "tw_ny_roulette_records_v3";
 function loadRec(){ try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }catch{ return {}; } }
 function saveRec(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
 function bumpRec(lastText){
@@ -493,23 +520,27 @@ const rouletteOverlay = document.getElementById("rouletteOverlay");
 function openRoulette(){ rouletteOverlay.classList.add("show"); }
 function closeRoulette(){ rouletteOverlay.classList.remove("show"); }
 
-/* roulette draw */
+/* roulette elements */
 const wheelInner = document.getElementById("wheelInner");
 const pointer = document.getElementById("pointer");
+const flash = document.getElementById("flash");
+const centerBtn = document.getElementById("centerBtn");
+
+/* wheel canvas */
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
 const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2;
 const radius=275;
 
-/* Taiwan new year prizes */
+/* prizes with clear color tier */
 const PRIZES = [
-  { name:"🍍 旺來好運", weight:28, badge:"旺", kind:"ok", sub:"旺旺來！新的一年順順利利。" },
-  { name:"🧧 紅包加持", weight:22, badge:"福", kind:"ok", sub:"福氣滿滿，恭喜發財！" },
-  { name:"🏮 平安順心", weight:18, badge:"安", kind:"ok", sub:"平安順心，日日是好日。" },
-  { name:"🧨 爆竹大吉", weight:14, badge:"吉", kind:"warn", sub:"爆竹一響，萬事如意！" },
-  { name:"🎯 好彩頭", weight:10, badge:"喜", kind:"warn", sub:"有彩頭，做啥都順！" },
-  { name:"👑 超級好運", weight:6,  badge:"大獎", kind:"bad", sub:"今天運勢爆棚！" },
-  { name:"✨ 再轉一次", weight:2,  badge:"Lucky", kind:"bad", sub:"你是被選中的人，再來一次！", extraSpin:true }
+  { name:"🍍 旺來好運", weight:28, tier:"common", badge:"旺", kind:"ok", sub:"旺旺來！新的一年順順利利。" },
+  { name:"🧧 紅包加持", weight:22, tier:"common", badge:"福", kind:"ok", sub:"福氣滿滿，恭喜發財！" },
+  { name:"🏮 平安順心", weight:18, tier:"common", badge:"安", kind:"ok", sub:"平安順心，日日是好日。" },
+  { name:"🧨 爆竹大吉", weight:14, tier:"rare",   badge:"吉", kind:"warn", sub:"爆竹一響，萬事如意！" },
+  { name:"🎯 好彩頭",   weight:10, tier:"rare",   badge:"喜", kind:"warn", sub:"有彩頭，做啥都順！" },
+  { name:"👑 超級好運", weight:6,  tier:"jackpot",badge:"大獎", kind:"bad", sub:"今天運勢爆棚！" },
+  { name:"✨ 再轉一次", weight:2,  tier:"jackpot",badge:"Lucky",kind:"bad", sub:"你是被選中的人，再來一次！", extraSpin:true }
 ];
 
 const n = PRIZES.length;
@@ -518,11 +549,23 @@ const slice = (Math.PI*2)/n;
 let spinning=false;
 let currentRotation=0;
 
+function tierFill(i){
+  const t = PRIZES[i].tier;
+  if(t === "jackpot"){
+    return (i%2===0) ? "rgba(242,195,107,.38)" : "rgba(255,107,107,.22)";
+  }
+  if(t === "rare"){
+    return (i%2===0) ? "rgba(255,204,102,.18)" : "rgba(179,0,0,.24)";
+  }
+  return (i%2===0) ? "rgba(179,0,0,.28)" : "rgba(0,0,0,.14)";
+}
+
 function drawWheel(){
   ctx.clearRect(0,0,W,H);
-  // base ring
+
+  // base glow
   const grd = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
-  grd.addColorStop(0, "rgba(242,195,107,.18)");
+  grd.addColorStop(0, "rgba(242,195,107,.22)");
   grd.addColorStop(1, "rgba(0,0,0,.25)");
   ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI*2);
   ctx.fillStyle = grd; ctx.fill();
@@ -536,25 +579,36 @@ function drawWheel(){
     ctx.arc(cx, cy, radius, a0, a1);
     ctx.closePath();
 
-    ctx.fillStyle = (i%2===0) ? "rgba(179,0,0,.28)" : "rgba(242,195,107,.16)";
+    ctx.fillStyle = tierFill(i);
     ctx.fill();
 
-    ctx.strokeStyle = "rgba(255,255,255,.14)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    // highlight for jackpot sectors
+    if(PRIZES[i].tier === "jackpot"){
+      ctx.strokeStyle = "rgba(242,195,107,.55)";
+      ctx.lineWidth = 5;
+      ctx.stroke();
+    }else{
+      ctx.strokeStyle = "rgba(255,255,255,.12)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
 
+    // text
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(a0 + slice/2);
     ctx.textAlign = "right";
     ctx.fillStyle = "rgba(255,255,255,.95)";
-    ctx.font = "900 26px system-ui,-apple-system,Segoe UI,Noto Sans TC,sans-serif";
+    ctx.font = (PRIZES[i].tier === "jackpot")
+      ? "1000 28px system-ui,-apple-system,Segoe UI,Noto Sans TC,sans-serif"
+      : "900 26px system-ui,-apple-system,Segoe UI,Noto Sans TC,sans-serif";
     ctx.fillText(PRIZES[i].name, radius-18, 10);
     ctx.restore();
   }
 
+  // outer ring
   ctx.beginPath(); ctx.arc(cx, cy, radius-12, 0, Math.PI*2);
-  ctx.strokeStyle = "rgba(242,195,107,.30)";
+  ctx.strokeStyle = "rgba(242,195,107,.34)";
   ctx.lineWidth = 10;
   ctx.stroke();
 }
@@ -572,13 +626,27 @@ function pickWeighted(items){
 
 function tickPointer(){
   pointer.classList.remove("tick");
-  void pointer.offsetWidth; // reflow to restart
+  void pointer.offsetWidth;
   pointer.classList.add("tick");
+}
+
+/* ritual "boom" */
+function ritualBoom(){
+  centerBtn.classList.add("boom");
+  flash.classList.remove("on");
+  void flash.offsetWidth;
+  flash.classList.add("on");
+  setTimeout(()=>centerBtn.classList.remove("boom"), 160);
 }
 
 function spinRoulette(){
   if(spinning) return;
   spinning=true;
+
+  ritualBoom();           // ✅ 咚 + 金粉閃一下
+  tickPointer();          // ✅ 指針咔哒
+  setTimeout(tickPointer, 420);
+  setTimeout(tickPointer, 820);
 
   const idx = pickWeighted(PRIZES);
   const prize = PRIZES[idx];
@@ -586,7 +654,6 @@ function spinRoulette(){
   const degPer = 360/n;
   const targetCenter = (idx + 0.5) * degPer;
 
-  // ✅ 改善：圈數少一點 + 時間短一點 + 更俐落
   const extraSpins = 4;
   const finalRotation = extraSpins*360 + (360 - targetCenter);
   const nextRotation = currentRotation + finalRotation;
@@ -594,19 +661,13 @@ function spinRoulette(){
   wheelInner.classList.add("spin");
   wheelInner.style.transform = `rotate(${nextRotation}deg)`;
 
-  // 假裝指針咔哒（少量次數，增加真實感）
-  tickPointer();
-  setTimeout(tickPointer, 420);
-  setTimeout(tickPointer, 820);
-
   setTimeout(()=>{
     currentRotation = nextRotation % 360;
     spinning=false;
 
-    const isBig = prize.weight <= 6;
-    const isJackpot = prize.weight <= 2;
-    if(isJackpot) burstConfetti(140, true);
-    else if(isBig) burstConfetti(85, true);
+    const isBig = prize.tier === "jackpot";
+    if(isBig) burstConfetti(120, true);
+    else if(prize.tier === "rare") burstConfetti(60, true);
     else burstConfetti(34, false);
 
     bumpRec("輪盤：" + prize.name);
@@ -619,10 +680,12 @@ function spinRoulette(){
       sub: prize.sub
     });
 
+    // ✅ 仍留在輪盤畫面；彈窗關掉就能再轉
+    // 小彩蛋：再轉一次自動幫你再轉（如果你不想自動，我也可以改成手動）
     if(prize.extraSpin){
-      setTimeout(()=>{ closeModal(); spinRoulette(); }, 650);
+      setTimeout(()=>{ closeModal(); spinRoulette(); }, 700);
     }
-  }, 3250);
+  }, 3150);
 }
 
 /* escape */
