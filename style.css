@@ -289,7 +289,6 @@ body{
   from{transform:rotate(0deg);}
   to{transform:rotate(360deg);}
 }
-
 /* 文字層一定在金光上面 */
 .result-text, .result-sub, .again-btn{
   position:relative;
