@@ -3,11 +3,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const ctx = canvas.getContext("2d");
 
   const spinBtn = document.getElementById("spinBtn");
-  const againBtn = document.getElementById("againBtn");
-  const resultEnvelope = document.getElementById("resultEnvelope");
+  const pointer = document.querySelector(".pointer");
+
+  const overlay = document.getElementById("resultOverlay");
+  const envelope = document.getElementById("resultEnvelope");
   const resultText = document.getElementById("resultText");
   const resultSub = document.getElementById("resultSub");
-  const pointer = document.querySelector(".pointer");
+  const againBtn = document.getElementById("againBtn");
+  const closeBtn = document.getElementById("closeBtn");
 
   const W = canvas.width;
   const H = canvas.height;
@@ -15,25 +18,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const cy = H / 2;
   const radius = 270;
 
-  // 狀態機
-  let state = "idle"; // idle | spinning | stopping | result
-  let currentRotation = 0;
-  let velocity = 0;
-  let targetAngle = 0;
-  let targetIndex = 0;
-
-  // 獎池
   const PRIZES = [
-    { name: "🍍 旺來好運", weight: 28, tier: "common", sub: "旺旺來！新的一年順順利利。" },
-    { name: "🧧 紅包加持", weight: 22, tier: "common", sub: "福氣滿滿，恭喜發財！" },
-    { name: "🏮 平安順心", weight: 18, tier: "common", sub: "平安順心，日日是好日。" },
-    { name: "🧨 爆竹大吉", weight: 14, tier: "rare", sub: "爆竹一響，萬事如意！" },
-    { name: "🎯 好彩頭", weight: 10, tier: "rare", sub: "有彩頭，做啥都順！" },
-    { name: "👑 超級好運", weight: 6, tier: "jackpot", sub: "今天運勢爆棚！" },
+    { name: "🍍 旺來好運", weight: 28, sub: "旺旺來！新的一年順順利利。" },
+    { name: "🧧 紅包加持", weight: 22, sub: "福氣滿滿，恭喜發財！" },
+    { name: "🏮 平安順心", weight: 18, sub: "平安順心，日日是好日。" },
+    { name: "🧨 爆竹大吉", weight: 14, sub: "爆竹一響，萬事如意！" },
+    { name: "🎯 好彩頭",   weight: 10, sub: "有彩頭，做啥都順！" },
+    { name: "👑 超級好運", weight: 6,  sub: "今天運勢爆棚！" },
   ];
 
   const n = PRIZES.length;
   const slice = (Math.PI * 2) / n;
+
+  let state = "idle";
+  let currentRotation = 0;
 
   function pickWeightedIndex() {
     const total = PRIZES.reduce((s, p) => s + p.weight, 0);
@@ -46,16 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function tierColor(i) {
-    const t = PRIZES[i].tier;
-    if (t === "jackpot") return i % 2 === 0 ? "rgba(242,195,107,.55)" : "rgba(255,107,107,.35)";
-    if (t === "rare") return i % 2 === 0 ? "rgba(255,204,102,.25)" : "rgba(179,0,0,.30)";
-    return i % 2 === 0 ? "rgba(179,0,0,.36)" : "rgba(0,0,0,.16)";
+    // 更明顯分級
+    if (i === n - 1) return "rgba(242,195,107,.60)"; // 超級好運
+    if (i >= n - 3) return i % 2 ? "rgba(255,204,102,.28)" : "rgba(179,0,0,.32)";
+    return i % 2 ? "rgba(0,0,0,.16)" : "rgba(179,0,0,.34)";
   }
 
   function drawWheel() {
     ctx.clearRect(0, 0, W, H);
 
-    // glow
     const grd = ctx.createRadialGradient(cx, cy, 20, cx, cy, radius);
     grd.addColorStop(0, "rgba(242,195,107,.22)");
     grd.addColorStop(1, "rgba(0,0,0,.30)");
@@ -75,23 +72,20 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.fillStyle = tierColor(i);
       ctx.fill();
 
-      ctx.strokeStyle =
-        PRIZES[i].tier === "jackpot" ? "rgba(242,195,107,.65)" : "rgba(255,255,255,.12)";
-      ctx.lineWidth = PRIZES[i].tier === "jackpot" ? 5 : 3;
+      ctx.strokeStyle = "rgba(255,255,255,.14)";
+      ctx.lineWidth = 3;
       ctx.stroke();
 
-      // text
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(a0 + slice / 2);
       ctx.textAlign = "right";
       ctx.fillStyle = "rgba(255,255,255,.95)";
-      ctx.font = PRIZES[i].tier === "jackpot" ? "1000 28px system-ui" : "900 26px system-ui";
+      ctx.font = i === n - 1 ? "1000 28px system-ui" : "900 26px system-ui";
       ctx.fillText(PRIZES[i].name, radius - 20, 10);
       ctx.restore();
     }
 
-    // outer ring
     ctx.beginPath();
     ctx.arc(cx, cy, radius - 10, 0, Math.PI * 2);
     ctx.strokeStyle = "rgba(242,195,107,.45)";
@@ -108,85 +102,103 @@ document.addEventListener("DOMContentLoaded", () => {
     pointer.classList.add("tick");
   }
 
-  function startSpin() {
-    if (state !== "idle" && state !== "result") return;
+  // ✅ 平滑減速：時間制 + easeOut，不會突然加速
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
 
-    // reset result
-    resultEnvelope.style.display = "none";
-    resultEnvelope.classList.remove("open");
+  let lastSector = 0;
 
+  function spinOnce() {
+    if (state !== "idle") return;
     state = "spinning";
 
-    targetIndex = pickWeightedIndex();
+    // 先關閉結果
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+    envelope.classList.remove("open");
+
+    const idx = pickWeightedIndex();
 
     const degPer = 360 / n;
-    const centerDeg = (targetIndex + 0.5) * degPer;
+    const centerDeg = (idx + 0.5) * degPer;
 
-    // 多轉幾圈
-    const extraRounds = 4 + Math.floor(Math.random() * 2);
-    targetAngle = currentRotation + extraRounds * 360 + (360 - centerDeg);
+    const extraRounds = 5 + Math.floor(Math.random() * 2);
+    const start = currentRotation;
+    const end = start + extraRounds * 360 + (360 - centerDeg);
 
-    velocity = 28 + Math.random() * 6;
-    requestAnimationFrame(animateSpin);
-  }
+    const duration = 4200; // ms
+    const t0 = performance.now();
 
-  function animateSpin() {
-    if (state !== "spinning" && state !== "stopping") return;
+    lastSector = Math.floor(start / degPer);
 
-    currentRotation += velocity;
-    velocity *= 0.985;
+    function raf(now) {
+      const t = Math.min(1, (now - t0) / duration);
+      const eased = easeOutCubic(t);
+      const rot = start + (end - start) * eased;
 
-    if (state === "spinning" && velocity < 4) {
-      state = "stopping";
-    }
+      // tick：每跨一格就跳一下
+      const sector = Math.floor(rot / degPer);
+      if (sector !== lastSector) {
+        tick();
+        lastSector = sector;
+      }
 
-    if (state === "stopping") {
-      const diff = targetAngle - currentRotation;
-      velocity = diff * 0.12; // 吸附到目標
-      if (Math.abs(diff) < 0.5) {
-        currentRotation = targetAngle;
-        canvas.style.transform = `rotate(${currentRotation}deg)`;
-        finishSpin();
+      currentRotation = rot;
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      if (t < 1) {
+        requestAnimationFrame(raf);
         return;
       }
+
+      // finish
+      currentRotation = currentRotation % 360;
+      showResult(idx);
+      state = "idle";
     }
 
-    const degPer = 360 / n;
-    if (Math.floor(currentRotation / degPer) !== Math.floor((currentRotation - velocity) / degPer)) {
-      tick();
-    }
-
-  
-    canvas.style.transform = `rotate(${currentRotation}deg)`;
-    requestAnimationFrame(animateSpin);
+    requestAnimationFrame(raf);
   }
 
-  function finishSpin() {
-    state = "result";
-
-    const prize = PRIZES[targetIndex];
+  function showResult(idx) {
+    const prize = PRIZES[idx];
     resultText.textContent = prize.name;
     resultSub.textContent = prize.sub;
 
-    resultEnvelope.style.display = "block";
-    resultEnvelope.setAttribute("aria-hidden", "false");
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
 
-    // 觸發開封動畫
+    // 開封動畫
     requestAnimationFrame(() => {
-      resultEnvelope.classList.add("open");
+      envelope.classList.add("open");
     });
-
-    currentRotation = currentRotation % 360;
   }
 
-  // 綁定按鈕
-  spinBtn.addEventListener("click", startSpin);
+  // 事件
+  spinBtn.addEventListener("click", spinOnce);
+
   againBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (state === "result") {
-      state = "idle";
-      startSpin();
+    overlay.classList.remove("show");
+    envelope.classList.remove("open");
+    // 下一個 frame 再轉，避免動畫/點擊衝突
+    requestAnimationFrame(() => spinOnce());
+  });
+
+  closeBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.classList.remove("show");
+    envelope.classList.remove("open");
+  });
+
+  // 點 overlay 空白處關閉
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove("show");
+      envelope.classList.remove("open");
     }
   });
 });
