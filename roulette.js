@@ -1,16 +1,143 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const canvas = document.getElementById("wheelCanvas");
-  const ctx = canvas.getContext("2d");
+  // ---------------- Tabs ----------------
+  const tabs = Array.from(document.querySelectorAll(".tab"));
+  const views = Array.from(document.querySelectorAll(".view"));
 
-  const spinBtn = document.getElementById("spinBtn");
-  const pointer = document.querySelector(".pointer");
+  function switchTab(id, el) {
+    views.forEach(v => v.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 
+    tabs.forEach(t => t.classList.remove("active"));
+    el.classList.add("active");
+  }
+
+  tabs.forEach(t => {
+    t.addEventListener("click", () => switchTab(t.dataset.tab, t));
+  });
+
+  document.getElementById("goRules")?.addEventListener("click", () => {
+    switchTab("rules", tabs[4]);
+  });
+
+  // ---------------- Local record (pure frontend) ----------------
+  const LS_KEY = "tw_ny_roulette_records_v1";
+  function loadRec(){ try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }catch{ return {}; } }
+  function saveRec(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+
+  function bumpRec(lastText){
+    const r = loadRec();
+    r.rouletteCnt = r.rouletteCnt || 0;
+    r.rouletteCnt += 1;
+    if(lastText) r.last = lastText;
+    saveRec(r);
+    renderRec();
+  }
+  function renderRec(){
+    const r = loadRec();
+    document.getElementById("myRouletteCnt").textContent = (r.rouletteCnt || 0) + " 次";
+    document.getElementById("myLast").textContent = r.last || "—";
+  }
+  renderRec();
+
+  // ---------------- Confetti / Fireworks ----------------
+  const confetti = document.getElementById("confetti");
+  function burstConfetti(count, style="normal"){
+    confetti.innerHTML = "";
+    const colors = style === "firework"
+      ? ["#f6d17b","#e7b84f","#ffffff","#ff6b6b","rgba(255,255,255,.75)"]
+      : ["#f6d17b","#e7b84f","#ffffff","rgba(255,255,255,.75)"];
+
+    for(let i=0;i<count;i++){
+      const el = document.createElement("i");
+      el.style.left = (Math.random()*100) + "vw";
+      el.style.top = (-10 - Math.random()*20) + "px";
+      el.style.width = (6 + Math.random()*10) + "px";
+      el.style.height = (10 + Math.random()*18) + "px";
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      el.style.borderRadius = (Math.random() > 0.6) ? "999px" : "2px";
+      el.style.opacity = 0.85 + Math.random()*0.15;
+
+      const dur = 1200 + Math.random()*1600;
+      const dx = (Math.random()*2-1)*160;
+      const rot = 360 + Math.random()*540;
+
+      confetti.appendChild(el);
+      el.animate(
+        [
+          { transform: `translateY(0) translateX(0) rotate(0deg)` },
+          { transform: `translateY(110vh) translateX(${dx}px) rotate(${rot}deg)` }
+        ],
+        { duration: dur, fill: "forwards", easing: "linear" }
+      );
+    }
+    setTimeout(()=>{ confetti.innerHTML=""; }, 2600);
+  }
+
+  // ---------------- Roulette Overlay (open/close) ----------------
+  const rouletteOverlay = document.getElementById("rouletteOverlay");
+  const backBtn = document.getElementById("backBtn");
+
+  function openRoulette(){
+    rouletteOverlay.classList.add("show");
+    rouletteOverlay.setAttribute("aria-hidden", "false");
+    // 每次打開都確保輪盤已畫好（避免 iOS 切頁/縮放後 canvas 模糊或字寬跑掉）
+    ensureWheelReady();
+  }
+  function closeRoulette(){
+    rouletteOverlay.classList.remove("show");
+    rouletteOverlay.setAttribute("aria-hidden", "true");
+  }
+
+  window.openRoulette = openRoulette;
+  window.closeRoulette = closeRoulette;
+
+  document.getElementById("goRoulette1")?.addEventListener("click", openRoulette);
+  document.getElementById("goRoulette2")?.addEventListener("click", openRoulette);
+  backBtn?.addEventListener("click", closeRoulette);
+
+  // ---------------- Result Envelope Overlay ----------------
   const overlay = document.getElementById("resultOverlay");
   const envelope = document.getElementById("resultEnvelope");
   const resultText = document.getElementById("resultText");
   const resultSub = document.getElementById("resultSub");
   const againBtn = document.getElementById("againBtn");
   const closeBtn = document.getElementById("closeBtn");
+
+  function showResult(prize){
+    resultText.textContent = prize.name;
+    resultSub.textContent = prize.sub;
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+
+    requestAnimationFrame(() => {
+      envelope.classList.add("open");
+    });
+  }
+
+  function hideResult(){
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+    envelope.classList.remove("open");
+  }
+
+  closeBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    hideResult();
+  });
+
+  overlay?.addEventListener("click", (e) => {
+    if (e.target === overlay) hideResult();
+  });
+
+  // ---------------- New Roulette (canvas + pointer tick + easing) ----------------
+  const canvas = document.getElementById("wheelCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const spinBtn = document.getElementById("spinBtn");
+  const spinBtn2 = document.getElementById("spinBtn2");
+  const pointer = document.querySelector(".pointer");
 
   const W = canvas.width;
   const H = canvas.height;
@@ -33,10 +160,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   let state = "idle";
   let currentRotation = 0;
   let lastSector = 0;
+  let wheelReady = false;
 
-  // ✅ 等字體載好（iPhone/Chrome canvas 字寬一致）
-  if (document.fonts && document.fonts.ready) {
-    try { await document.fonts.ready; } catch {}
+  async function ensureWheelReady(){
+    if (wheelReady) return;
+
+    // ✅ 等字體載好（iPhone/Chrome canvas 字寬一致）
+    if (document.fonts && document.fonts.ready) {
+      try { await document.fonts.ready; } catch {}
+    }
+    drawWheel();
+    wheelReady = true;
   }
 
   function pickWeightedIndex() {
@@ -100,8 +234,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     ctx.stroke();
   }
 
-  drawWheel();
-
   function tick() {
     if (!pointer) return;
     pointer.classList.remove("tick");
@@ -113,13 +245,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     return 1 - Math.pow(1 - t, 3);
   }
 
-  function spinOnce() {
+  async function spinOnce() {
     if (state !== "idle") return;
-    state = "spinning";
+    await ensureWheelReady();
 
-    overlay.classList.remove("show");
-    overlay.setAttribute("aria-hidden", "true");
-    envelope.classList.remove("open");
+    state = "spinning";
+    hideResult(); // 先收掉結果層
 
     const idx = pickWeightedIndex();
 
@@ -155,48 +286,48 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       currentRotation = currentRotation % 360;
-      showResult(idx);
+
+      // 喜氣特效（你原本 confetti 保留）
+      const prize = PRIZES[idx];
+      const isBig = prize.weight <= 10;
+      if (isBig) burstConfetti(70, "firework");
+      else burstConfetti(32, "normal");
+
+      bumpRec("輪盤：" + prize.name);
+      showResult(prize);
+
       state = "idle";
     }
 
     requestAnimationFrame(raf);
   }
 
-  function showResult(idx) {
-    const prize = PRIZES[idx];
-    resultText.textContent = prize.name;
-    resultSub.textContent = prize.sub;
+  spinBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    spinOnce();
+  });
+  spinBtn2?.addEventListener("click", (e) => {
+    e.preventDefault();
+    spinOnce();
+  });
 
-    overlay.classList.add("show");
-    overlay.setAttribute("aria-hidden", "false");
-
-    requestAnimationFrame(() => {
-      envelope.classList.add("open");
-    });
-  }
-
-  // 事件
-  spinBtn.addEventListener("click", spinOnce);
-
-  againBtn.addEventListener("click", (e) => {
+  againBtn?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    overlay.classList.remove("show");
-    envelope.classList.remove("open");
+    hideResult();
     requestAnimationFrame(() => spinOnce());
   });
 
-  closeBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    overlay.classList.remove("show");
-    envelope.classList.remove("open");
-  });
-
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) {
-      overlay.classList.remove("show");
-      envelope.classList.remove("open");
+  // escape to close
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      hideResult();
+      closeRoulette();
     }
   });
+
+  // 若一進來就已經在 overlay 打開狀態（例如某些 SPA 恢復），保險畫一次
+  if (rouletteOverlay.classList.contains("show")) {
+    ensureWheelReady();
+  }
 });
