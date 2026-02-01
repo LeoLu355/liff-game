@@ -1,544 +1,492 @@
-:root{
-  --red:#b30000;
-  --red-dark:#7f0000;
-  --gold:#f2c36b;
-  --gold-soft:#f6d17b;
-  --gold-dark:#e7b84f;
-  --text:#ffffff;
+document.addEventListener("DOMContentLoaded", async () => {
+  // =========================
+  // Config
+  // =========================
+  const API_BASE = ""; // 之後可填 https://your-api.example.com
+  const USE_MOCK = true; // ✅ 先讓前端可跑；接後端時改 false
 
-  --bg1:#07070c;
-  --bg2:#101018;
+  // =========================
+  // Simple helpers
+  // =========================
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-  --tabH: 68px;
-}
+  function setText(id, v) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = v;
+  }
 
-*{box-sizing:border-box}
+  function uuidv4() {
+    // crypto-safe if available
+    if (crypto?.randomUUID) return crypto.randomUUID();
+    const r = (n) => (crypto.getRandomValues(new Uint8Array(n)));
+    const b = r(16);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    const hex = [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  }
 
-html, body{ height:100%; }
+  // =========================
+  // Router (hash-based)
+  // =========================
+  const ROUTES = ["home", "game", "rank", "me", "rules"];
+  const pageTitle = document.getElementById("pageTitle");
+  const pageSubTitle = document.getElementById("pageSubTitle");
 
-body{
-  margin:0;
-  font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
-  -webkit-text-size-adjust:100%;
-  background:
-    radial-gradient(1200px 800px at 10% 5%, rgba(242,195,107,.18), transparent 60%),
-    radial-gradient(900px 600px at 90% 20%, rgba(179,0,0,.22), transparent 60%),
-    linear-gradient(180deg,var(--bg1),var(--bg2));
-  color:var(--text);
-  overflow:hidden;
-}
+  function getRoute() {
+    const h = (location.hash || "#/home").replace("#/", "");
+    return ROUTES.includes(h) ? h : "home";
+  }
 
-/* 動態背景層 */
-.bg-particles{
-  position:fixed;
-  inset:0;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(242,195,107,.10), transparent 50%),
-    radial-gradient(circle at 80% 60%, rgba(179,0,0,.12), transparent 50%);
-  animation: floatBg 12s ease-in-out infinite alternate;
-  pointer-events:none;
-  z-index:0;
-}
-@keyframes floatBg{
-  0%{ filter:brightness(1); transform:translateY(0px);}
-  100%{ filter:brightness(1.15); transform:translateY(-10px);}
-}
+  function setActiveRoute(route) {
+    ROUTES.forEach((r) => {
+      const page = document.getElementById(`page-${r}`);
+      if (page) page.classList.toggle("active", r === route);
 
-/* ✅ SPA App Layout */
-.app{
-  position:relative;
-  z-index:1;
-  max-width:480px;
-  margin:0 auto;
+      const tab = document.querySelector(`.tab[data-route="${r}"]`);
+      if (tab) tab.classList.toggle("active", r === route);
+    });
 
-  min-height:100dvh;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+    const page = document.getElementById(`page-${route}`);
+    if (page && pageTitle && pageSubTitle) {
+      pageTitle.textContent = route === "home" ? "🧧 新春轉盤活動" : (page.dataset.title || "");
+      pageSubTitle.textContent = page.dataset.sub || "";
+    }
+  }
 
-  display:flex;
-  flex-direction:column;
-}
+  function onRouteChange() {
+    const route = getRoute();
+    setActiveRoute(route);
 
-/* ✅ Topbar */
-.topbar{
-  position:relative;
-  padding:16px 12px 8px;
-  text-align:center;
-  flex:0 0 auto;
-}
-.topbar h1{
-  margin:0;
-  font-size:22px;
-  font-weight:900;
-  letter-spacing:1px;
-  text-shadow:0 0 20px rgba(242,195,107,.4);
-}
-.topbar p{
-  margin:6px 0 0;
-  font-size:13px;
-  opacity:.85;
-}
+    // 避免切頁後 scroll 保留（LIFF 內常見）
+    const viewport = document.getElementById("viewport");
+    if (viewport) viewport.scrollTo({ top: 0, behavior: "instant" });
 
-/* 燈籠 */
-.lantern{
-  position:absolute;
-  top:8px;
-  width:46px;
-  height:68px;
-  background:linear-gradient(180deg,#ff1a1a,var(--red));
-  border-radius:18px 18px 22px 22px;
-  box-shadow:0 12px 40px rgba(179,0,0,.35);
-  border:1px solid rgba(255,255,255,.15);
-  animation:sway 3s ease-in-out infinite alternate;
-}
-.lantern::after{
-  content:"";
-  position:absolute;
-  bottom:-12px;
-  left:50%;
-  transform:translateX(-50%);
-  width:14px;
-  height:18px;
-  background:linear-gradient(180deg,var(--gold),transparent);
-  border-radius:3px;
-  filter:drop-shadow(0 10px 20px rgba(242,195,107,.35));
-}
-.l1{left:10px;}
-.l2{right:10px; animation-delay:1.2s;}
-@keyframes sway{
-  from{ transform:rotate(-3deg);}
-  to{ transform:rotate(3deg);}
-}
+    // 特定頁可做刷新
+    if (route === "rank") loadLeaderboard();
+    if (route === "me") loadMe();
+    if (route === "game") refreshSpinState();
+  }
 
-/* ✅ Viewport: middle scroll area (avoid iOS 100vh jump) */
-.viewport{
-  flex: 1 1 auto;
-  overflow:auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 6px 10px calc(var(--tabH) + 10px);
-}
+  window.addEventListener("hashchange", onRouteChange);
 
-/* Pages */
-.page{ display:none; }
-.page.active{ display:block; }
+  // =========================
+  // Backend client skeleton
+  // =========================
+  const mockDB = {
+    me: { displayName: "訪客", lineUserId: "Uxxxxxxxx(mock)", spinsLeft: 3 },
+    leaderboard: [
+      { rank: 1, name: "小明", score: "👑×1" },
+      { rank: 2, name: "阿華", score: "🧧×2" },
+      { rank: 3, name: "小美", score: "🏮×3" },
+    ],
+    // server authority prizeId (string)
+    prizes: [
+      { prizeId: "P1", name: "🍍 旺來好運", sub: "旺旺來！新的一年順順利利。" },
+      { prizeId: "P2", name: "🧧 紅包加持", sub: "福氣滿滿，恭喜發財！" },
+      { prizeId: "P3", name: "🏮 平安順心", sub: "平安順心，日日是好日。" },
+      { prizeId: "P4", name: "🧨 爆竹大吉", sub: "爆竹一響，萬事如意！" },
+      { prizeId: "P5", name: "🎯 好彩頭", sub: "有彩頭，做啥都順！" },
+      { prizeId: "P6", name: "👑 超級好運", sub: "今天運勢爆棚！" },
+    ],
+    // 防重送：記住 clientSpinId
+    usedSpinIds: new Set(),
+  };
 
-/* Cards & UI blocks */
-.card{
-  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.18));
-  border:1px solid rgba(242,195,107,.18);
-  border-radius:18px;
-  box-shadow:0 18px 50px rgba(0,0,0,.35);
-  padding:14px;
-  margin:10px 0;
-}
-.card-title{
-  font-weight:900;
-  letter-spacing:.5px;
-  margin-bottom:10px;
-}
-.muted{ opacity:.85; font-size:13px; line-height:1.5; }
-.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; }
+  async function apiFetch(path, { method = "GET", headers = {}, body } = {}) {
+    if (USE_MOCK) {
+      return mockFetch(path, { method, headers, body });
+    }
+    const res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers: { "Content-Type": "application/json", ...headers },
+      body: body ? JSON.stringify(body) : undefined,
+      credentials: "include",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = data?.message || `HTTP ${res.status}`;
+      throw new Error(msg);
+    }
+    return data;
+  }
 
-/* Home Hero */
-.hero{
-  padding:16px;
-  border:1px solid rgba(242,195,107,.26);
-}
-.hero-badge{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:999px;
-  background:rgba(179,0,0,.35);
-  border:1px solid rgba(242,195,107,.18);
-  font-weight:900;
-  font-size:12px;
-}
-.hero-title{
-  margin-top:10px;
-  font-weight:900;
-  font-size:18px;
-  text-shadow:0 0 14px rgba(242,195,107,.35);
-}
-.hero-desc{ margin-top:6px; opacity:.9; font-size:13px; line-height:1.5; }
-.hero-actions{ margin-top:12px; display:flex; gap:10px; }
+  async function mockFetch(path, { method, body } = {}) {
+    // very small latency simulate
+    await new Promise(r => setTimeout(r, 120));
 
-/* Buttons */
-.primary-btn, .ghost-btn{
-  appearance:none;
-  border:none;
-  border-radius:999px;
-  padding:10px 14px;
-  font-weight:900;
-  cursor:pointer;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-}
-.primary-btn{
-  color:var(--red-dark);
-  background:linear-gradient(180deg,#f6d17b,#e7b84f);
-}
-.ghost-btn{
-  color:#fff;
-  background:rgba(0,0,0,.18);
-  border:1px solid rgba(255,255,255,.18);
-}
+    if (path === "/me" && method === "GET") {
+      return { ok: true, data: mockDB.me };
+    }
 
-/* Lists */
-.list{
-  margin:0;
-  padding-left:18px;
-  line-height:1.7;
-  font-size:13px;
-  opacity:.92;
-}
-.kv{
-  display:grid;
-  grid-template-columns: 90px 1fr;
-  gap:8px 10px;
-  font-size:13px;
-  align-items:center;
-}
-.k{ opacity:.8; }
-.v{ font-weight:700; overflow:hidden; text-overflow:ellipsis; }
+    if (path.startsWith("/leaderboard") && method === "GET") {
+      return { ok: true, data: { items: mockDB.leaderboard, updatedAt: new Date().toISOString() } };
+    }
 
-/* Tiers */
-.tiers{ display:grid; gap:10px; }
-.tier{
-  padding:12px 12px;
-  border-radius:16px;
-  border:1px solid rgba(242,195,107,.18);
-  background:rgba(0,0,0,.16);
-}
-.tier-name{ font-weight:900; }
-.tier-desc{ opacity:.85; font-size:12px; margin-top:4px; }
-.t1{ background:linear-gradient(180deg, rgba(242,195,107,.22), rgba(0,0,0,.16)); }
-.t2{ background:linear-gradient(180deg, rgba(179,0,0,.22), rgba(0,0,0,.16)); }
-.t3{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.16)); }
+    if (path === "/spin" && method === "POST") {
+      const { clientSpinId } = body || {};
+      if (!clientSpinId) return { ok: false, message: "missing clientSpinId" };
 
-/* Rank list */
-.rank-list{
-  list-style:none;
-  padding:0;
-  margin:0;
-  display:grid;
-  gap:8px;
-}
-.rank-list li{
-  display:grid;
-  grid-template-columns: 28px 1fr auto;
-  gap:10px;
-  align-items:center;
-  padding:10px 12px;
-  border-radius:14px;
-  background:rgba(0,0,0,.16);
-  border:1px solid rgba(255,255,255,.10);
-}
-.rk{
-  width:28px; height:28px;
-  display:grid; place-items:center;
-  border-radius:10px;
-  background:rgba(242,195,107,.14);
-  font-weight:900;
-}
-.nm{ font-weight:900; }
-.sc{ opacity:.9; }
+      if (mockDB.usedSpinIds.has(clientSpinId)) {
+        // idempotent: return same outcome (這裡用簡化：直接擋)
+        return { ok: false, code: "DUPLICATE_SPIN", message: "duplicate spin" };
+      }
+      if (mockDB.me.spinsLeft <= 0) {
+        return { ok: false, code: "NO_SPINS", message: "no spins left" };
+      }
 
-/* ✅ Tabs */
-.tabs{
-  position:sticky;
-  bottom:0;
-  left:0; right:0;
-  margin:0 auto;
-  width:100%;
-  max-width:480px;
-  height:var(--tabH);
-  padding:8px 10px calc(env(safe-area-inset-bottom) + 6px);
-  display:flex;
-  gap:8px;
-  align-items:flex-start;
-  justify-content:space-between;
+      mockDB.usedSpinIds.add(clientSpinId);
+      mockDB.me.spinsLeft -= 1;
 
-  background:rgba(0,0,0,.28);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+      // weighted pick
+      const weights = [28,22,18,14,10,6];
+      const total = weights.reduce((a,b)=>a+b,0);
+      let r = Math.random() * total;
+      let idx = weights.length - 1;
+      for (let i=0;i<weights.length;i++){
+        r -= weights[i];
+        if (r <= 0){ idx = i; break; }
+      }
+      const prize = mockDB.prizes[idx];
 
-  border-top:1px solid rgba(255,255,255,.10);
-  z-index: 50;
-}
-.tab{
-  flex:1 1 0;
-  text-decoration:none;
-  color:rgba(255,255,255,.78);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-  border-radius:14px;
-  padding:8px 6px;
-  user-select:none;
-  -webkit-tap-highlight-color: transparent;
-}
-.tab-ic{ font-size:18px; }
-.tab-tx{ font-size:11px; font-weight:900; letter-spacing:.5px; }
-.tab.active{
-  color:#fff;
-  background:linear-gradient(180deg, rgba(179,0,0,.26), rgba(0,0,0,.10));
-  border:1px solid rgba(242,195,107,.18);
-}
+      return {
+        ok: true,
+        data: {
+          clientSpinId,
+          prizeId: prize.prizeId,
+          spinsLeft: mockDB.me.spinsLeft,
+          awardedAt: new Date().toISOString(),
+        }
+      };
+    }
 
-/* ======= 你原本的輪盤區塊樣式（保留） ======= */
+    if (path === "/auth/line" && method === "POST") {
+      return { ok: true, data: { session: "mock", lineUserId: mockDB.me.lineUserId } };
+    }
 
-.roulette-container{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding:10px 0;
-}
+    return { ok: false, message: `mock: unknown endpoint ${method} ${path}` };
+  }
 
-/* 春聯 */
-.couplet{
-  writing-mode:vertical-rl;
-  text-orientation:upright;
-  font-weight:900;
-  letter-spacing:3px;
-  font-size:18px;
-  padding:14px 10px;
-  border-radius:18px;
-  background:linear-gradient(180deg, rgba(179,0,0,.45), rgba(127,0,0,.25));
-  border:1px solid rgba(242,195,107,.25);
-  box-shadow:0 18px 50px rgba(179,0,0,.25);
-  text-shadow:0 0 12px rgba(242,195,107,.35);
-}
+  // =========================
+  // UI: load me / leaderboard
+  // =========================
+  async function refreshSpinState() {
+    try {
+      const res = await apiFetch("/me", { method: "GET" });
+      const me = res.data;
+      setText("spinLeft", me.spinsLeft ?? "—");
+      setText("meSpinLeft", me.spinsLeft ?? "—");
+      setText("meName", me.displayName ?? "—");
+      setText("meLineId", me.lineUserId ?? "—");
 
-.wheel-area{
-  position:relative;
-  width:320px;
-  aspect-ratio:1/1;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+      const spinHint = document.getElementById("spinHint");
+      if (spinHint) spinHint.textContent = (me.spinsLeft > 0) ? "恭喜發財" : "次數不足";
+    } catch (e) {
+      const spinHint = document.getElementById("spinHint");
+      if (spinHint) spinHint.textContent = "連線異常";
+    }
+  }
 
-/* 指針 */
-.pointer{
-  position:absolute;
-  top:-8px;
-  left:50%;
-  transform:translateX(-50%);
-  width:0;height:0;
-  border-left:14px solid transparent;
-  border-right:14px solid transparent;
-  border-top:22px solid var(--gold);
-  filter:drop-shadow(0 8px 16px rgba(0,0,0,.5));
-  z-index:20;
-  pointer-events:none;
-}
-.pointer::after{
-  content:"";
-  position:absolute;
-  left:-10px;
-  top:-24px;
-  width:20px;
-  height:20px;
-  border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, #fff, var(--gold-dark));
-  border:1px solid rgba(255,255,255,.35);
-}
-.pointer.tick{ animation:pointerTick .08s ease-out; }
-@keyframes pointerTick{
-  from{ transform:translateX(-50%) rotate(0deg); }
-  to{ transform:translateX(-50%) rotate(-10deg); }
-}
+  async function loadMe() {
+    await refreshSpinState();
+  }
 
-/* 輪盤殼 */
-.wheel-shell{
-  position:relative;
-  width:100%;
-  height:100%;
-  border-radius:50%;
-  background: radial-gradient(circle at 50% 50%, rgba(242,195,107,.18), rgba(0,0,0,.35));
-  padding:12px;
-  box-shadow:
-    0 0 0 4px rgba(242,195,107,.15),
-    0 0 60px rgba(242,195,107,.25),
-    0 20px 60px rgba(0,0,0,.6);
-  z-index:10;
-  pointer-events:none;
-}
-#wheelCanvas{
-  width:100%;
-  height:100%;
-  border-radius:50%;
-  border:2px solid rgba(255,255,255,.18);
-  pointer-events:none;
-  will-change: transform;
-  transform: translateZ(0);
-}
+  async function loadLeaderboard() {
+    try {
+      const res = await apiFetch("/leaderboard", { method: "GET" });
+      const items = res.data?.items || [];
+      const ol = document.getElementById("rankList");
+      if (!ol) return;
+      ol.innerHTML = items.map(x => `
+        <li>
+          <span class="rk">${x.rank}</span>
+          <span class="nm">${escapeHtml(x.name)}</span>
+          <span class="sc">${escapeHtml(x.score)}</span>
+        </li>
+      `).join("");
+    } catch {}
+  }
 
-/* 中心按鈕 */
-.center-btn{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:108px;
-  height:108px;
-  border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, #fff, var(--gold-dark));
-  border:2px solid rgba(255,255,255,.4);
-  box-shadow:0 16px 40px rgba(0,0,0,.6);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  color:var(--red-dark);
-  font-weight:900;
-  cursor:pointer;
-  z-index:1000;
-  animation:pulse 2.4s ease-in-out infinite;
-}
-.center-btn span{font-size:14px;}
-.center-btn small{font-size:10px;opacity:.9;margin-top:2px;}
-.center-btn:active{ transform:translate(-50%,-50%) scale(.98); }
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
 
-@keyframes pulse{
-  0%{ box-shadow:0 0 0 0 rgba(242,195,107,.45), 0 16px 40px rgba(0,0,0,.6);}
-  70%{ box-shadow:0 0 0 18px rgba(242,195,107,0), 0 16px 40px rgba(0,0,0,.6);}
-  100%{ box-shadow:0 0 0 0 rgba(242,195,107,0), 0 16px 40px rgba(0,0,0,.6);}
-}
-.glow-ring{
-  position:absolute;
-  inset:-12px;
-  border-radius:50%;
-  border:2px solid rgba(242,195,107,.35);
-  animation: ringPulse 2s ease-in-out infinite;
-  pointer-events:none;
-}
-@keyframes ringPulse{
-  0%{opacity:.4; transform:scale(1);}
-  100%{opacity:.9; transform:scale(1.08);}
-}
+  // =========================
+  // Roulette (your original, with server-authoritative prize)
+  // =========================
+  const canvas = document.getElementById("wheelCanvas");
+  const ctx = canvas.getContext("2d");
 
-/* ✅ 次數 badge */
-.spin-badge{
-  position:absolute;
-  left:12px;
-  bottom:12px;
-  z-index:30;
-  padding:10px 12px;
-  border-radius:16px;
-  background:rgba(0,0,0,.20);
-  border:1px solid rgba(242,195,107,.18);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  box-shadow:0 12px 30px rgba(0,0,0,.35);
-  user-select:none;
-}
-.spin-badge-title{ font-size:11px; opacity:.85; font-weight:900; }
-.spin-badge-num{ font-size:18px; font-weight:900; margin-top:2px; }
+  const spinBtn = document.getElementById("spinBtn");
+  const pointer = document.querySelector(".pointer");
 
-/* ✅ 結果 overlay：Safari/Chrome 一致 & 可點 */
-.result-overlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  place-items:center;
-  background:rgba(0,0,0,.35);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  z-index:2147483647;
-  pointer-events:auto;
-  transform:none !important;
-}
-.result-overlay.show{ display:grid; }
+  const overlay = document.getElementById("resultOverlay");
+  const envelope = document.getElementById("resultEnvelope");
+  const resultText = document.getElementById("resultText");
+  const resultSub = document.getElementById("resultSub");
+  const againBtn = document.getElementById("againBtn");
+  const closeBtn = document.getElementById("closeBtn");
 
-.result-envelope{
-  width:290px;
-  height:200px;
-  position:relative;
-  transform:none;
-  animation: popIn .28s ease-out forwards;
-}
-@keyframes popIn{
-  from{opacity:0; transform: translateY(18px) scale(.94);}
-  to{opacity:1; transform: translateY(0) scale(1);}
-}
+  const contactBtn = document.getElementById("contactBtn");
 
-.envelope-top{
-  position:absolute;
-  top:0; left:0; right:0;
-  height:55%;
-  background:linear-gradient(180deg,#c40000,var(--red-dark));
-  border-radius:18px 18px 0 0;
-  z-index:3;
-  transform: translateY(0);
-}
-.envelope-body{
-  position:absolute;
-  bottom:0; left:0; right:0;
-  height:65%;
-  background:linear-gradient(180deg,var(--red),#8f0000);
-  border-radius:0 0 18px 18px;
-  padding:14px 14px 12px;
-  text-align:center;
-  overflow:hidden;
-  z-index:2;
-}
+  const W = canvas.width;
+  const H = canvas.height;
+  const cx = W / 2;
+  const cy = H / 2;
+  const radius = 270;
 
-.gold-light{
-  position:absolute;
-  inset:-40%;
-  background:radial-gradient(circle at 50% 50%, rgba(242,195,107,.45), transparent 60%);
-  animation: lightSpin 2.5s linear infinite;
-  pointer-events:none;
-}
-@keyframes lightSpin{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
+  // ✅ prizes: key = prizeId (server authority)
+  const PRIZES = [
+    { prizeId:"P1", name: "🍍 旺來好運", sub: "旺旺來！新的一年順順利利。", weight: 28 },
+    { prizeId:"P2", name: "🧧 紅包加持", sub: "福氣滿滿，恭喜發財！", weight: 22 },
+    { prizeId:"P3", name: "🏮 平安順心", sub: "平安順心，日日是好日。", weight: 18 },
+    { prizeId:"P4", name: "🧨 爆竹大吉", sub: "爆竹一響，萬事如意！", weight: 14 },
+    { prizeId:"P5", name: "🎯 好彩頭", sub: "有彩頭，做啥都順！", weight: 10 },
+    { prizeId:"P6", name: "👑 超級好運", sub: "今天運勢爆棚！", weight: 6 },
+  ];
 
-.result-text,.result-sub,.again-btn,.close-btn{ position:relative; z-index:5; }
-.result-text{
-  font-weight:900;
-  font-size:18px;
-  margin-top:14px;
-  text-shadow:0 0 12px rgba(242,195,107,.6);
-}
-.result-sub{
-  font-size:12px;
-  opacity:.9;
-  margin-top:6px;
-}
+  const n = PRIZES.length;
+  const slice = (Math.PI * 2) / n;
 
-.again-btn{
-  margin-top:12px;
-  padding:10px 16px;
-  border:none;
-  border-radius:999px;
-  font-weight:900;
-  background:linear-gradient(180deg,#f6d17b,#e7b84f);
-  cursor:pointer;
-}
-.close-btn{
-  margin-top:8px;
-  padding:8px 14px;
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:999px;
-  background:rgba(0,0,0,.15);
-  color:#fff;
-  cursor:pointer;
-}
+  let state = "idle";
+  let currentRotation = 0;
+  let lastSector = 0;
 
-/* ✅ 上蓋滑開（不靠 3D rotate，Safari 更穩） */
-.result-envelope.open .envelope-top{
-  animation: flapSlide .35s cubic-bezier(.2,.9,.2,1) forwards;
-}
-@keyframes flapSlide{
-  0%{ transform: translateY(0); }
-  100%{ transform: translateY(-46px); opacity:.92; }
-}
+  // ✅ 等字體載好（iPhone/Chrome canvas 字寬一致）
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch {}
+  }
+
+  function tierColor(i) {
+    if (i === n - 1) return "rgba(242,195,107,.60)";
+    if (i >= n - 3) return i % 2 ? "rgba(255,204,102,.28)" : "rgba(179,0,0,.32)";
+    return i % 2 ? "rgba(0,0,0,.16)" : "rgba(179,0,0,.34)";
+  }
+
+  function drawWheel() {
+    ctx.clearRect(0, 0, W, H);
+
+    const grd = ctx.createRadialGradient(cx, cy, 20, cx, cy, radius);
+    grd.addColorStop(0, "rgba(242,195,107,.22)");
+    grd.addColorStop(1, "rgba(0,0,0,.30)");
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+
+    for (let i = 0; i < n; i++) {
+      const a0 = i * slice - Math.PI / 2;
+      const a1 = a0 + slice;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, a0, a1);
+      ctx.closePath();
+      ctx.fillStyle = tierColor(i);
+      ctx.fill();
+
+      ctx.strokeStyle = "rgba(255,255,255,.14)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(a0 + slice / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = "rgba(255,255,255,.95)";
+      ctx.font = (i === n - 1)
+        ? '900 28px "Noto Sans TC", system-ui, sans-serif'
+        : '900 26px "Noto Sans TC", system-ui, sans-serif';
+      ctx.fillText(PRIZES[i].name, radius - 20, 10);
+      ctx.restore();
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius - 10, 0, Math.PI * 2);
+    ctx.strokeStyle = "rgba(242,195,107,.45)";
+    ctx.lineWidth = 10;
+    ctx.stroke();
+  }
+
+  drawWheel();
+
+  function tick() {
+    if (!pointer) return;
+    pointer.classList.remove("tick");
+    void pointer.offsetWidth;
+    pointer.classList.add("tick");
+  }
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function prizeIdToIndex(prizeId) {
+    const idx = PRIZES.findIndex(p => p.prizeId === prizeId);
+    return idx >= 0 ? idx : 0;
+  }
+
+  async function requestSpinFromServer() {
+    const clientSpinId = uuidv4();
+    const res = await apiFetch("/spin", {
+      method: "POST",
+      body: { clientSpinId }
+    });
+
+    // res: { ok:true, data:{ prizeId, spinsLeft, ... } }
+    const prizeId = res.data?.prizeId;
+    const spinsLeft = res.data?.spinsLeft;
+
+    if (typeof spinsLeft !== "undefined") {
+      setText("spinLeft", spinsLeft);
+      setText("meSpinLeft", spinsLeft);
+      const spinHint = document.getElementById("spinHint");
+      if (spinHint) spinHint.textContent = (spinsLeft > 0) ? "恭喜發財" : "次數不足";
+    }
+
+    return { clientSpinId, prizeId };
+  }
+
+  function spinToIndex(idx) {
+    state = "spinning";
+
+    overlay.classList.remove("show");
+    overlay.setAttribute("aria-hidden", "true");
+    envelope.classList.remove("open");
+
+    const degPer = 360 / n;
+    const centerDeg = (idx + 0.5) * degPer;
+
+    const extraRounds = 5 + Math.floor(Math.random() * 2);
+    const start = currentRotation;
+    const end = start + extraRounds * 360 + (360 - centerDeg);
+
+    const duration = 4200;
+    const t0 = performance.now();
+
+    lastSector = Math.floor(start / degPer);
+
+    function raf(now) {
+      const t = Math.min(1, (now - t0) / duration);
+      const eased = easeOutCubic(t);
+      const rot = start + (end - start) * eased;
+
+      const sector = Math.floor(rot / degPer);
+      if (sector !== lastSector) {
+        tick();
+        lastSector = sector;
+      }
+
+      currentRotation = rot;
+      canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+      if (t < 1) {
+        requestAnimationFrame(raf);
+        return;
+      }
+
+      currentRotation = currentRotation % 360;
+      showResult(idx);
+      state = "idle";
+    }
+
+    requestAnimationFrame(raf);
+  }
+
+  function showResult(idx) {
+    const prize = PRIZES[idx];
+    resultText.textContent = prize.name;
+    resultSub.textContent = prize.sub;
+
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+
+    requestAnimationFrame(() => {
+      envelope.classList.add("open");
+    });
+  }
+
+  async function spinOnce() {
+    if (state !== "idle") return;
+
+    // 先檢查剩餘次數（UI 友善），真正權威仍由 /spin 決定
+    const left = Number(document.getElementById("spinLeft")?.textContent ?? "0");
+    if (!Number.isNaN(left) && left <= 0) {
+      resultText.textContent = "次數不足";
+      resultSub.textContent = "請等待管理端派發遊玩次數。";
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => envelope.classList.add("open"));
+      return;
+    }
+
+    state = "spinning"; // lock early to prevent double tap
+    try {
+      const { prizeId } = await requestSpinFromServer();
+      const idx = prizeIdToIndex(prizeId);
+      spinToIndex(idx);
+    } catch (e) {
+      state = "idle";
+      resultText.textContent = "連線失敗";
+      resultSub.textContent = e?.message || "請稍後再試";
+      overlay.classList.add("show");
+      overlay.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => envelope.classList.add("open"));
+    }
+  }
+
+  // =========================
+  // Events
+  // =========================
+  spinBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    spinOnce();
+  });
+
+  againBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.classList.remove("show");
+    envelope.classList.remove("open");
+    requestAnimationFrame(() => spinOnce());
+  });
+
+  closeBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.classList.remove("show");
+    envelope.classList.remove("open");
+  });
+
+  overlay?.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove("show");
+      envelope.classList.remove("open");
+    }
+  });
+
+  // 點 badge 直接去我的
+  $("#spinBadge")?.addEventListener("click", () => {
+    location.hash = "#/me";
+  });
+
+  contactBtn?.addEventListener("click", () => {
+    // 之後你可改成 LIFF openWindow / openChat
+    alert("請改成跳轉 LINE OA / 客服連結（示意）");
+  });
+
+  // =========================
+  // Initial boot
+  // =========================
+  // 預設路由
+  if (!location.hash) location.hash = "#/home";
+
+  // 先抓一次 me，讓次數/我的頁有值
+  await refreshSpinState();
+
+  // render route
+  onRouteChange();
+});
