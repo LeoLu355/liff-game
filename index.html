@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>新春輪盤活動</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+  <!-- 🔑 關鍵：穩定 viewport（iOS 友善） -->
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -21,14 +25,14 @@
   <div class="roulette-container">
     <div class="couplet left">招財進寶</div>
 
-    <div class="wheel-area" id="wheelArea">
+    <div class="wheel-area">
       <div class="pointer"></div>
 
       <div class="wheel-shell">
         <canvas id="wheelCanvas" width="600" height="600"></canvas>
       </div>
 
-      <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
+      <button class="center-btn" id="spinBtn" type="button">
         <div class="glow-ring"></div>
         <span>開始轉</span>
         <small>恭喜發財</small>
@@ -39,16 +43,16 @@
   </div>
 </div>
 
-<!-- ✅ 全屏結果層：避免「再轉一次」被吃點擊 -->
-<div class="result-overlay" id="resultOverlay" aria-hidden="true">
+<!-- 結果 Overlay -->
+<div class="result-overlay" id="resultOverlay">
   <div class="result-envelope" id="resultEnvelope">
     <div class="envelope-top"></div>
     <div class="envelope-body">
       <div class="gold-light"></div>
       <div class="result-text" id="resultText">—</div>
       <div class="result-sub" id="resultSub">—</div>
-      <button class="again-btn" id="againBtn" type="button">再轉一次</button>
-      <button class="close-btn" id="closeBtn" type="button">關閉</button>
+      <button class="again-btn" id="againBtn">再轉一次</button>
+      <button class="close-btn" id="closeBtn">關閉</button>
     </div>
   </div>
 </div>
