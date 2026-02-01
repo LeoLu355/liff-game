@@ -514,3 +514,9 @@ body{
   0%{ transform: translateY(0); }
   100%{ transform: translateY(-46px); opacity:.92; }
 }
+/* 防止 extension 的全域 CSS 汙染：把 app 當成一個隔離 root */
+.app, .rouletteOverlay, .result-overlay{
+  all: initial;
+  font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+}
