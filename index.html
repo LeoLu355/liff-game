@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <title>新春輪盤活動</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+
+  <!-- ✅ WebFont：讓 iPhone/Chrome/Android 字型一致 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -28,28 +34,28 @@
         <canvas id="wheelCanvas" width="600" height="600"></canvas>
       </div>
 
-      <!-- 中心按鈕（獨立一層，避免跟輪盤一起轉/被遮） -->
       <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
         <div class="glow-ring"></div>
         <span>開始轉</span>
         <small>恭喜發財</small>
       </button>
-
-      <!-- 結果紅包 -->
-      <div class="result-envelope" id="resultEnvelope" aria-hidden="true">
-        <div class="envelope-top"></div>
-        <div class="envelope-body">
-          <div class="gold-light"></div>
-
-          <div class="result-text" id="resultText">—</div>
-          <div class="result-sub" id="resultSub">—</div>
-
-          <button class="again-btn" id="againBtn" type="button">再轉一次</button>
-        </div>
-      </div>
     </div>
 
     <div class="couplet right">五福臨門</div>
+  </div>
+</div>
+
+<!-- ✅ 結果 overlay：保證 iPhone/Chrome 都可點 -->
+<div class="result-overlay" id="resultOverlay" aria-hidden="true">
+  <div class="result-envelope" id="resultEnvelope" role="dialog" aria-modal="true">
+    <div class="envelope-top"></div>
+    <div class="envelope-body">
+      <div class="gold-light"></div>
+      <div class="result-text" id="resultText">—</div>
+      <div class="result-sub" id="resultSub">—</div>
+      <button class="again-btn" id="againBtn" type="button">再轉一次</button>
+      <button class="close-btn" id="closeBtn" type="button">關閉</button>
+    </div>
   </div>
 </div>
 
