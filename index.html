@@ -17,32 +17,166 @@
 <div class="bg-particles"></div>
 
 <div class="app">
-  <div class="header">
+  <!-- ✅ Top Bar（固定、不同頁會更新標題） -->
+  <header class="topbar">
     <div class="lantern l1"></div>
     <div class="lantern l2"></div>
-    <h1>🧧 新春轉盤活動</h1>
-    <p>轉出你的新年好運氣</p>
-  </div>
+    <div class="topbar-titles">
+      <h1 id="pageTitle">🧧 新春轉盤活動</h1>
+      <p id="pageSubTitle">轉出你的新年好運氣</p>
+    </div>
+  </header>
 
-  <div class="roulette-container">
-    <div class="couplet left">招財進寶</div>
-
-    <div class="wheel-area" id="wheelArea">
-      <div class="pointer"></div>
-
-      <div class="wheel-shell">
-        <canvas id="wheelCanvas" width="600" height="600"></canvas>
+  <!-- ✅ Main Viewport：五頁 -->
+  <main class="viewport" id="viewport" role="main">
+    <!-- Home -->
+    <section class="page" id="page-home" data-title="首頁" data-sub="活動入口與公告">
+      <div class="card hero">
+        <div class="hero-badge">新春限定</div>
+        <div class="hero-title">🧧 開轉！把好運帶回家</div>
+        <div class="hero-desc">每日由活動方派發遊玩次數，點擊下方進入遊戲。</div>
+        <div class="hero-actions">
+          <a class="primary-btn" href="#/game" role="button">前往遊戲</a>
+          <a class="ghost-btn" href="#/rules" role="button">查看規則</a>
+        </div>
       </div>
 
-      <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
-        <div class="glow-ring"></div>
-        <span>開始轉</span>
-        <small>恭喜發財</small>
-      </button>
-    </div>
+      <div class="card">
+        <div class="card-title">📣 最新公告</div>
+        <ul class="list">
+          <li>活動期間：1/xx - 2/xx（示意）</li>
+          <li>獎項以系統結果為準</li>
+          <li>如遇異常請至「規則客服」聯繫</li>
+        </ul>
+      </div>
 
-    <div class="couplet right">五福臨門</div>
-  </div>
+      <div class="card">
+        <div class="card-title">🎁 獎項分級（示意）</div>
+        <div class="tiers">
+          <div class="tier t1">
+            <div class="tier-name">👑 超級好運</div>
+            <div class="tier-desc">最高級獎項</div>
+          </div>
+          <div class="tier t2">
+            <div class="tier-name">🧧 福氣獎</div>
+            <div class="tier-desc">中高級獎項</div>
+          </div>
+          <div class="tier t3">
+            <div class="tier-name">🏮 平安獎</div>
+            <div class="tier-desc">一般獎項</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game -->
+    <section class="page" id="page-game" data-title="遊戲" data-sub="每次轉動消耗 1 次數">
+      <div class="roulette-container">
+        <div class="couplet left">招財進寶</div>
+
+        <div class="wheel-area" id="wheelArea">
+          <div class="pointer"></div>
+
+          <div class="wheel-shell">
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
+          </div>
+
+          <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
+            <div class="glow-ring"></div>
+            <span>開始轉</span>
+            <small id="spinHint">載入中…</small>
+          </button>
+
+          <!-- ✅ 次數顯示（可點進我的頁） -->
+          <div class="spin-badge" id="spinBadge">
+            <div class="spin-badge-title">剩餘次數</div>
+            <div class="spin-badge-num" id="spinLeft">—</div>
+          </div>
+        </div>
+
+        <div class="couplet right">五福臨門</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎯 提醒</div>
+        <div class="muted">
+          每次轉動會由後端原子扣除 1 次數，並使用 clientSpinId 防止重送。
+        </div>
+      </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="page" id="page-rank" data-title="排行榜" data-sub="依活動規則排序（示意）">
+      <div class="card">
+        <div class="card-title">🏆 今日排行（假資料）</div>
+        <ol class="rank-list" id="rankList">
+          <li><span class="rk">1</span><span class="nm">小明</span><span class="sc">👑×1</span></li>
+          <li><span class="rk">2</span><span class="nm">阿華</span><span class="sc">🧧×2</span></li>
+          <li><span class="rk">3</span><span class="nm">小美</span><span class="sc">🏮×3</span></li>
+        </ol>
+        <div class="muted">之後會改成讀取 /leaderboard</div>
+      </div>
+    </section>
+
+    <!-- Me -->
+    <section class="page" id="page-me" data-title="我的" data-sub="帳號與次數狀態（示意）">
+      <div class="card">
+        <div class="card-title">👤 帳號</div>
+        <div class="kv">
+          <div class="k">暱稱</div><div class="v" id="meName">—</div>
+          <div class="k">LINE User ID</div><div class="v mono" id="meLineId">—</div>
+          <div class="k">剩餘次數</div><div class="v" id="meSpinLeft">—</div>
+        </div>
+        <div class="muted">之後會改成讀取 /me</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🧾 我的中獎紀錄（假資料）</div>
+        <ul class="list" id="meHistory">
+          <li>2026-02-01　🧧 紅包加持</li>
+          <li>2026-01-31　🏮 平安順心</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Rules / Support -->
+    <section class="page" id="page-rules" data-title="規則客服" data-sub="活動規則與聯繫方式">
+      <div class="card">
+        <div class="card-title">📜 活動規則（示意）</div>
+        <ul class="list">
+          <li>遊玩次數由管理端派發。</li>
+          <li>每次轉動消耗 1 次數，結果以系統判定為準。</li>
+          <li>禁止異常操作（重送/改包/腳本等）。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">☎️ 客服（示意）</div>
+        <div class="muted">LINE 官方帳號：@xxxxxxx</div>
+        <div class="muted">服務時間：09:00-18:00</div>
+        <button class="primary-btn" type="button" id="contactBtn">聯繫客服</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ✅ Bottom Tabs -->
+  <nav class="tabs" role="navigation" aria-label="底部導覽">
+    <a class="tab" href="#/home" data-route="home">
+      <div class="tab-ic">🏠</div><div class="tab-tx">首頁</div>
+    </a>
+    <a class="tab" href="#/game" data-route="game">
+      <div class="tab-ic">🧧</div><div class="tab-tx">遊戲</div>
+    </a>
+    <a class="tab" href="#/rank" data-route="rank">
+      <div class="tab-ic">🏆</div><div class="tab-tx">排行榜</div>
+    </a>
+    <a class="tab" href="#/me" data-route="me">
+      <div class="tab-ic">👤</div><div class="tab-tx">我的</div>
+    </a>
+    <a class="tab" href="#/rules" data-route="rules">
+      <div class="tab-ic">📜</div><div class="tab-tx">規則客服</div>
+    </a>
+  </nav>
 </div>
 
 <!-- ✅ 結果 overlay：保證 iPhone/Chrome 都可點 -->
