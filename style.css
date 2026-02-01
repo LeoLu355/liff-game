@@ -5,13 +5,16 @@
   --gold-soft:#f6d17b;
   --gold-dark:#e7b84f;
   --text:#ffffff;
+
+  --bg1:#07070c;
+  --bg2:#101018;
+
+  --tabH: 68px;
 }
 
 *{box-sizing:border-box}
 
-html, body{
-  height:100%;
-}
+html, body{ height:100%; }
 
 body{
   margin:0;
@@ -20,7 +23,7 @@ body{
   background:
     radial-gradient(1200px 800px at 10% 5%, rgba(242,195,107,.18), transparent 60%),
     radial-gradient(900px 600px at 90% 20%, rgba(179,0,0,.22), transparent 60%),
-    linear-gradient(180deg,#07070c,#101018);
+    linear-gradient(180deg,var(--bg1),var(--bg2));
   color:var(--text);
   overflow:hidden;
 }
@@ -41,33 +44,36 @@ body{
   100%{ filter:brightness(1.15); transform:translateY(-10px);}
 }
 
+/* ✅ SPA App Layout */
 .app{
   position:relative;
   z-index:1;
   max-width:480px;
   margin:0 auto;
-  /* ✅ iPhone Safari vh 修正 */
+
   min-height:100dvh;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+
   display:flex;
   flex-direction:column;
-  justify-content:center;
 }
 
-.header{
-  text-align:center;
-  padding:18px 10px 10px;
+/* ✅ Topbar */
+.topbar{
   position:relative;
+  padding:16px 12px 8px;
+  text-align:center;
+  flex:0 0 auto;
 }
-.header h1{
+.topbar h1{
   margin:0;
   font-size:22px;
   font-weight:900;
   letter-spacing:1px;
   text-shadow:0 0 20px rgba(242,195,107,.4);
 }
-.header p{
+.topbar p{
   margin:6px 0 0;
   font-size:13px;
   opacity:.85;
@@ -104,12 +110,194 @@ body{
   to{ transform:rotate(3deg);}
 }
 
+/* ✅ Viewport: middle scroll area (avoid iOS 100vh jump) */
+.viewport{
+  flex: 1 1 auto;
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 10px calc(var(--tabH) + 10px);
+}
+
+/* Pages */
+.page{ display:none; }
+.page.active{ display:block; }
+
+/* Cards & UI blocks */
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.18));
+  border:1px solid rgba(242,195,107,.18);
+  border-radius:18px;
+  box-shadow:0 18px 50px rgba(0,0,0,.35);
+  padding:14px;
+  margin:10px 0;
+}
+.card-title{
+  font-weight:900;
+  letter-spacing:.5px;
+  margin-bottom:10px;
+}
+.muted{ opacity:.85; font-size:13px; line-height:1.5; }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:12px; }
+
+/* Home Hero */
+.hero{
+  padding:16px;
+  border:1px solid rgba(242,195,107,.26);
+}
+.hero-badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(179,0,0,.35);
+  border:1px solid rgba(242,195,107,.18);
+  font-weight:900;
+  font-size:12px;
+}
+.hero-title{
+  margin-top:10px;
+  font-weight:900;
+  font-size:18px;
+  text-shadow:0 0 14px rgba(242,195,107,.35);
+}
+.hero-desc{ margin-top:6px; opacity:.9; font-size:13px; line-height:1.5; }
+.hero-actions{ margin-top:12px; display:flex; gap:10px; }
+
+/* Buttons */
+.primary-btn, .ghost-btn{
+  appearance:none;
+  border:none;
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:900;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.primary-btn{
+  color:var(--red-dark);
+  background:linear-gradient(180deg,#f6d17b,#e7b84f);
+}
+.ghost-btn{
+  color:#fff;
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.18);
+}
+
+/* Lists */
+.list{
+  margin:0;
+  padding-left:18px;
+  line-height:1.7;
+  font-size:13px;
+  opacity:.92;
+}
+.kv{
+  display:grid;
+  grid-template-columns: 90px 1fr;
+  gap:8px 10px;
+  font-size:13px;
+  align-items:center;
+}
+.k{ opacity:.8; }
+.v{ font-weight:700; overflow:hidden; text-overflow:ellipsis; }
+
+/* Tiers */
+.tiers{ display:grid; gap:10px; }
+.tier{
+  padding:12px 12px;
+  border-radius:16px;
+  border:1px solid rgba(242,195,107,.18);
+  background:rgba(0,0,0,.16);
+}
+.tier-name{ font-weight:900; }
+.tier-desc{ opacity:.85; font-size:12px; margin-top:4px; }
+.t1{ background:linear-gradient(180deg, rgba(242,195,107,.22), rgba(0,0,0,.16)); }
+.t2{ background:linear-gradient(180deg, rgba(179,0,0,.22), rgba(0,0,0,.16)); }
+.t3{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.16)); }
+
+/* Rank list */
+.rank-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:grid;
+  gap:8px;
+}
+.rank-list li{
+  display:grid;
+  grid-template-columns: 28px 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(0,0,0,.16);
+  border:1px solid rgba(255,255,255,.10);
+}
+.rk{
+  width:28px; height:28px;
+  display:grid; place-items:center;
+  border-radius:10px;
+  background:rgba(242,195,107,.14);
+  font-weight:900;
+}
+.nm{ font-weight:900; }
+.sc{ opacity:.9; }
+
+/* ✅ Tabs */
+.tabs{
+  position:sticky;
+  bottom:0;
+  left:0; right:0;
+  margin:0 auto;
+  width:100%;
+  max-width:480px;
+  height:var(--tabH);
+  padding:8px 10px calc(env(safe-area-inset-bottom) + 6px);
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  justify-content:space-between;
+
+  background:rgba(0,0,0,.28);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+
+  border-top:1px solid rgba(255,255,255,.10);
+  z-index: 50;
+}
+.tab{
+  flex:1 1 0;
+  text-decoration:none;
+  color:rgba(255,255,255,.78);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  border-radius:14px;
+  padding:8px 6px;
+  user-select:none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-ic{ font-size:18px; }
+.tab-tx{ font-size:11px; font-weight:900; letter-spacing:.5px; }
+.tab.active{
+  color:#fff;
+  background:linear-gradient(180deg, rgba(179,0,0,.26), rgba(0,0,0,.10));
+  border:1px solid rgba(242,195,107,.18);
+}
+
+/* ======= 你原本的輪盤區塊樣式（保留） ======= */
+
 .roulette-container{
   display:flex;
   align-items:center;
   justify-content:center;
   gap:12px;
-  padding:10px;
+  padding:10px 0;
 }
 
 /* 春聯 */
@@ -188,8 +376,6 @@ body{
   border-radius:50%;
   border:2px solid rgba(255,255,255,.18);
   pointer-events:none;
-
-  /* ✅ iPhone/Chrome transform 更一致 */
   will-change: transform;
   transform: translateZ(0);
 }
@@ -237,6 +423,24 @@ body{
   0%{opacity:.4; transform:scale(1);}
   100%{opacity:.9; transform:scale(1.08);}
 }
+
+/* ✅ 次數 badge */
+.spin-badge{
+  position:absolute;
+  left:12px;
+  bottom:12px;
+  z-index:30;
+  padding:10px 12px;
+  border-radius:16px;
+  background:rgba(0,0,0,.20);
+  border:1px solid rgba(242,195,107,.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  user-select:none;
+}
+.spin-badge-title{ font-size:11px; opacity:.85; font-weight:900; }
+.spin-badge-num{ font-size:18px; font-weight:900; margin-top:2px; }
 
 /* ✅ 結果 overlay：Safari/Chrome 一致 & 可點 */
 .result-overlay{
