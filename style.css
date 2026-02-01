@@ -514,6 +514,36 @@ body{
   0%{ transform: translateY(0); }
   100%{ transform: translateY(-46px); opacity:.92; }
 }
+
+@media (min-width: 768px){
+  body{ overflow:auto; }
+
+  .app{
+    max-width: 480px;
+    margin: 18px auto;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 30px 120px rgba(0,0,0,.55);
+    border: 1px solid rgba(255,255,255,.10);
+    min-height: 100vh;
+  }
+
+  .rouletteOverlay.show{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding: 18px;
+  }
+  .rouletteOverlay .rouletteTop,
+  .rouletteOverlay .rouletteBody{
+    width: 480px;
+    max-width: 480px;
+  }
+
+  .wheel-area{ width: 340px; }
+  .couplet{ font-size:16px; letter-spacing:2px; padding:12px 9px; }
+}
+
 /* 防止 extension 的全域 CSS 汙染：把 app 當成一個隔離 root */
 .app, .rouletteOverlay, .result-overlay{
   all: initial;
