@@ -1,185 +1,196 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>新春輪盤活動</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 
-  <!-- ✅ WebFont：讓 iPhone/Chrome/Android 字型一致 -->
+  <!-- ✅ WebFont：讓 iPhone/Chrome/Android 字型一致（你新輪盤依賴 fonts.ready） -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./style.css"/>
 </head>
+
 <body>
-
-<div class="bg-particles"></div>
-
 <div class="app">
-  <!-- ✅ Top Bar（固定、不同頁會更新標題） -->
-  <header class="topbar">
+  <div class="header">
     <div class="lantern l1"></div>
     <div class="lantern l2"></div>
-    <div class="topbar-titles">
-      <h1 id="pageTitle">🧧 新春轉盤活動</h1>
-      <p id="pageSubTitle">轉出你的新年好運氣</p>
+
+    <div class="title">新春輪盤活動</div>
+    <div class="sub">台灣新年氛圍 · 正式版前端 · 先專心輪盤（扭蛋已移除）</div>
+
+    <div class="banner">
+      <span class="badge red">🧧 迎春</span>
+      <div class="bannerText">恭喜發財 · 好運連連 · 轉出你的新年福氣</div>
+      <span class="badge gold">🎡 輪盤</span>
     </div>
-  </header>
 
-  <!-- ✅ Main Viewport：五頁 -->
-  <main class="viewport" id="viewport" role="main">
-    <!-- Home -->
-    <section class="page" id="page-home" data-title="首頁" data-sub="活動入口與公告">
-      <div class="card hero">
-        <div class="hero-badge">新春限定</div>
-        <div class="hero-title">🧧 開轉！把好運帶回家</div>
-        <div class="hero-desc">每日由活動方派發遊玩次數，點擊下方進入遊戲。</div>
-        <div class="hero-actions">
-          <a class="primary-btn" href="#/game" role="button">前往遊戲</a>
-          <a class="ghost-btn" href="#/rules" role="button">查看規則</a>
+    <div class="ticker">
+      <div class="tickerTrack" id="tickerTrack">
+        <span>🧨 爆竹一響 黃金萬兩</span>
+        <span>🧧 紅包拿滿 好運不斷</span>
+        <span>🏮 平安順心 天天好運</span>
+        <span>🍍 旺來旺來 天天好采頭</span>
+        <span>🧨 爆竹一響 黃金萬兩</span>
+        <span>🧧 紅包拿滿 好運不斷</span>
+        <span>🏮 平安順心 天天好運</span>
+        <span>🍍 旺來旺來 天天好采頭</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- HOME -->
+    <div class="view active" id="home">
+      <div class="card">
+        <div class="section-title">活動公告</div>
+        <div class="p">
+          這是新年活動輪盤的<strong>正式版前端</strong>。目前先把輪盤體驗做滿（動畫、停靠、結果、喜氣特效）。
+          下一階段再接：派發次數 / 扣次數 / 真排行榜。
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">📣 最新公告</div>
-        <ul class="list">
-          <li>活動期間：1/xx - 2/xx（示意）</li>
-          <li>獎項以系統結果為準</li>
-          <li>如遇異常請至「規則客服」聯繫</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🎁 獎項分級（示意）</div>
-        <div class="tiers">
-          <div class="tier t1">
-            <div class="tier-name">👑 超級好運</div>
-            <div class="tier-desc">最高級獎項</div>
-          </div>
-          <div class="tier t2">
-            <div class="tier-name">🧧 福氣獎</div>
-            <div class="tier-desc">中高級獎項</div>
-          </div>
-          <div class="tier t3">
-            <div class="tier-name">🏮 平安獎</div>
-            <div class="tier-desc">一般獎項</div>
-          </div>
+        <div class="section-title">快速入口</div>
+        <div class="row">
+          <button class="btn" id="goRoulette1">🎡 進入輪盤</button>
+          <button class="btn dark" id="goRules">📜 規則/客服</button>
         </div>
       </div>
-    </section>
-
-    <!-- Game -->
-    <section class="page" id="page-game" data-title="遊戲" data-sub="每次轉動消耗 1 次數">
-      <div class="roulette-container">
-        <div class="couplet left">招財進寶</div>
-
-        <div class="wheel-area" id="wheelArea">
-          <div class="pointer"></div>
-
-          <div class="wheel-shell">
-            <canvas id="wheelCanvas" width="600" height="600"></canvas>
-          </div>
-
-          <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
-            <div class="glow-ring"></div>
-            <span>開始轉</span>
-            <small id="spinHint">載入中…</small>
-          </button>
-
-          <!-- ✅ 次數顯示（可點進我的頁） -->
-          <div class="spin-badge" id="spinBadge">
-            <div class="spin-badge-title">剩餘次數</div>
-            <div class="spin-badge-num" id="spinLeft">—</div>
-          </div>
-        </div>
-
-        <div class="couplet right">五福臨門</div>
-      </div>
 
       <div class="card">
-        <div class="card-title">🎯 提醒</div>
-        <div class="muted">
-          每次轉動會由後端原子扣除 1 次數，並使用 clientSpinId 防止重送。
+        <div class="section-title">新年小提醒</div>
+        <div class="p muted">
+          ✅ 建議用手機直式全螢幕玩，沉浸感最好。<br/>
+          ✅ 轉盤結果目前採「前端抽選示意」，之後會由後端決定、可稽核。
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Leaderboard -->
-    <section class="page" id="page-rank" data-title="排行榜" data-sub="依活動規則排序（示意）">
+    <!-- GAME -->
+    <div class="view" id="game">
       <div class="card">
-        <div class="card-title">🏆 今日排行（假資料）</div>
-        <ol class="rank-list" id="rankList">
-          <li><span class="rk">1</span><span class="nm">小明</span><span class="sc">👑×1</span></li>
-          <li><span class="rk">2</span><span class="nm">阿華</span><span class="sc">🧧×2</span></li>
-          <li><span class="rk">3</span><span class="nm">小美</span><span class="sc">🏮×3</span></li>
-        </ol>
-        <div class="muted">之後會改成讀取 /leaderboard</div>
-      </div>
-    </section>
-
-    <!-- Me -->
-    <section class="page" id="page-me" data-title="我的" data-sub="帳號與次數狀態（示意）">
-      <div class="card">
-        <div class="card-title">👤 帳號</div>
-        <div class="kv">
-          <div class="k">暱稱</div><div class="v" id="meName">—</div>
-          <div class="k">LINE User ID</div><div class="v mono" id="meLineId">—</div>
-          <div class="k">剩餘次數</div><div class="v" id="meSpinLeft">—</div>
+        <div class="section-title">輪盤遊戲</div>
+        <button class="btn" id="goRoulette2">🎡 開始轉 · 拚個好彩頭</button>
+        <div class="p muted" style="margin-top:10px">
+          目前先專心把輪盤體驗做成「新年活動正式版」：視覺喜氣、結果回饋、儀式感到位。
         </div>
-        <div class="muted">之後會改成讀取 /me</div>
       </div>
 
       <div class="card">
-        <div class="card-title">🧾 我的中獎紀錄（假資料）</div>
-        <ul class="list" id="meHistory">
-          <li>2026-02-01　🧧 紅包加持</li>
-          <li>2026-01-31　🏮 平安順心</li>
-        </ul>
+        <div class="section-title">玩法提示</div>
+        <div class="p">
+          ① 進入輪盤 → ② 點中間「開始轉」→ ③ 等待停靠 → ④ 顯示結果 + 新年特效<br/>
+          （之後接後端：會顯示剩餘次數、沒次數不能轉）
+        </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Rules / Support -->
-    <section class="page" id="page-rules" data-title="規則客服" data-sub="活動規則與聯繫方式">
+    <!-- LEADERBOARD -->
+    <div class="view" id="leaderboard">
       <div class="card">
-        <div class="card-title">📜 活動規則（示意）</div>
-        <ul class="list">
-          <li>遊玩次數由管理端派發。</li>
-          <li>每次轉動消耗 1 次數，結果以系統判定為準。</li>
-          <li>禁止異常操作（重送/改包/腳本等）。</li>
-        </ul>
+        <div class="section-title">排行榜（暫為示意）</div>
+        <div class="rank"><span>1. 玩家A</span><span>🎯 12次</span></div>
+        <div class="rank"><span>2. 玩家B</span><span>🎯 9次</span></div>
+        <div class="rank"><span>3. 玩家C</span><span>🎯 7次</span></div>
+        <div class="rank"><span>4. 玩家D</span><span>🎯 5次</span></div>
+        <div class="p muted" style="margin-top:10px">
+          下一階段改成真資料：以「遊玩/中獎紀錄」做每日榜、活動榜。
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="view" id="profile">
+      <div class="card">
+        <div class="section-title">我的帳號（示意）</div>
+        <div class="profile-row"><span>身份來源</span><span>LINE LIFF</span></div>
+        <div class="profile-row"><span>使用者狀態</span><span>正常</span></div>
+        <div class="profile-row"><span>活動模式</span><span>新春輪盤</span></div>
       </div>
 
       <div class="card">
-        <div class="card-title">☎️ 客服（示意）</div>
-        <div class="muted">LINE 官方帳號：@xxxxxxx</div>
-        <div class="muted">服務時間：09:00-18:00</div>
-        <button class="primary-btn" type="button" id="contactBtn">聯繫客服</button>
+        <div class="section-title">我的紀錄（暫存）</div>
+        <div class="profile-row"><span>輪盤遊玩</span><span id="myRouletteCnt">0 次</span></div>
+        <div class="profile-row"><span>最近一次結果</span><span id="myLast">—</span></div>
+        <div class="p muted" style="margin-top:10px">
+          ※ 目前用瀏覽器暫存記錄（localStorage）。接後端後會變成真紀錄。
+        </div>
       </div>
-    </section>
-  </main>
+    </div>
 
-  <!-- ✅ Bottom Tabs -->
-  <nav class="tabs" role="navigation" aria-label="底部導覽">
-    <a class="tab" href="#/home" data-route="home">
-      <div class="tab-ic">🏠</div><div class="tab-tx">首頁</div>
-    </a>
-    <a class="tab" href="#/game" data-route="game">
-      <div class="tab-ic">🧧</div><div class="tab-tx">遊戲</div>
-    </a>
-    <a class="tab" href="#/rank" data-route="rank">
-      <div class="tab-ic">🏆</div><div class="tab-tx">排行榜</div>
-    </a>
-    <a class="tab" href="#/me" data-route="me">
-      <div class="tab-ic">👤</div><div class="tab-tx">我的</div>
-    </a>
-    <a class="tab" href="#/rules" data-route="rules">
-      <div class="tab-ic">📜</div><div class="tab-tx">規則客服</div>
-    </a>
-  </nav>
+    <!-- RULES -->
+    <div class="view" id="rules">
+      <div class="card">
+        <div class="section-title">規則與說明</div>
+        <div class="rule">
+          本活動為新春娛樂互動用途。<br/>
+          後續會加入「平台派發次數」機制。<br/>
+          請勿利用本活動進行任何違法用途。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">客服支援</div>
+        <div class="rule">
+          Email：support@platform.com<br/>
+          LINE：官方帳號客服<br/><br/>
+          回報建議格式：<br/>
+          1) LINE 顯示名稱　2) 問題描述　3) 截圖（若有）
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tabbar">
+    <div class="tab active" data-tab="home">🏠<br/>首頁</div>
+    <div class="tab" data-tab="game">🎮<br/>遊戲</div>
+    <div class="tab" data-tab="leaderboard">🏆<br/>排行榜</div>
+    <div class="tab" data-tab="profile">👤<br/>我的</div>
+    <div class="tab" data-tab="rules">📜<br/>規則</div>
+  </div>
 </div>
 
-<!-- ✅ 結果 overlay：保證 iPhone/Chrome 都可點 -->
+<!-- ✅ Roulette Overlay（把你「新輪盤」整套帶回這裡） -->
+<div class="rouletteOverlay" id="rouletteOverlay" aria-hidden="true">
+  <div class="rouletteTop">
+    <div class="t">🎡 新春輪盤</div>
+    <button class="backBtn" id="backBtn" type="button">返回</button>
+  </div>
+
+  <div class="rouletteBody">
+    <div class="roulette-container">
+      <div class="couplet left">招財進寶</div>
+
+      <div class="wheel-area" id="wheelArea">
+        <div class="pointer"></div>
+
+        <div class="wheel-shell">
+          <canvas id="wheelCanvas" width="600" height="600"></canvas>
+        </div>
+
+        <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
+          <div class="glow-ring"></div>
+          <span>開始轉</span>
+          <small>恭喜發財</small>
+        </button>
+      </div>
+
+      <div class="couplet right">五福臨門</div>
+    </div>
+
+    <button class="btn" style="width:min(360px,92vw)" id="spinBtn2">🧧 開始轉 · 旺旺來</button>
+    <div class="wheelHint">把「喜氣 + 儀式感」做滿。下一階段再接派發次數/扣次數/後端稽核。</div>
+  </div>
+</div>
+
+<!-- ✅ 結果 overlay（你新做的：紅包上蓋滑開） -->
 <div class="result-overlay" id="resultOverlay" aria-hidden="true">
   <div class="result-envelope" id="resultEnvelope" role="dialog" aria-modal="true">
     <div class="envelope-top"></div>
@@ -192,6 +203,8 @@
     </div>
   </div>
 </div>
+
+<div class="confetti" id="confetti"></div>
 
 <script src="./roulette.js"></script>
 </body>
