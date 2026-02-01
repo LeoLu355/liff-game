@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>新春輪盤活動</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <link rel="stylesheet" href="./style.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
 <div class="bg-particles"></div>
 
 <div class="app">
-
   <div class="header">
     <div class="lantern l1"></div>
     <div class="lantern l2"></div>
@@ -20,39 +19,38 @@
   </div>
 
   <div class="roulette-container">
-
     <div class="couplet left">招財進寶</div>
 
-    <div class="wheel-area">
+    <div class="wheel-area" id="wheelArea">
       <div class="pointer"></div>
 
       <div class="wheel-shell">
         <canvas id="wheelCanvas" width="600" height="600"></canvas>
-
-        <div class="center-btn" id="spinBtn">
-          <div class="glow-ring"></div>
-          <span>開始轉</span>
-          <small>恭喜發財</small>
-        </div>
       </div>
 
+      <!-- 中心按鈕（獨立一層，避免跟輪盤一起轉/被遮） -->
+      <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
+        <div class="glow-ring"></div>
+        <span>開始轉</span>
+        <small>恭喜發財</small>
+      </button>
+
       <!-- 結果紅包 -->
-      <div class="result-envelope" id="resultEnvelope">
+      <div class="result-envelope" id="resultEnvelope" aria-hidden="true">
         <div class="envelope-top"></div>
         <div class="envelope-body">
           <div class="gold-light"></div>
+
           <div class="result-text" id="resultText">—</div>
           <div class="result-sub" id="resultSub">—</div>
-          <button class="again-btn" id="againBtn">再轉一次</button>
+
+          <button class="again-btn" id="againBtn" type="button">再轉一次</button>
         </div>
       </div>
-
     </div>
 
     <div class="couplet right">五福臨門</div>
-
   </div>
-
 </div>
 
 <script src="./roulette.js"></script>
