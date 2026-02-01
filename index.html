@@ -5,207 +5,913 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>新春輪盤活動</title>
 
-  <!-- ✅ WebFont：讓 iPhone/Chrome/Android 字型一致（你新輪盤依賴 fonts.ready） -->
+  <!-- WebFont：手機/桌機一致 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="./style.css?v=20260201b">
+  <style>
+    :root{
+      --bg:#0b0b10;
+      --card:#171722;
+      --card2:#1e1e2c;
+      --line:rgba(255,255,255,.10);
+
+      --red:#b30000;
+      --red2:#7f0000;
+      --gold:#f2c36b;
+      --gold2:#e7b84f;
+
+      --text:#ffffff;
+      --muted:#b9bfd3;
+      --muted2:rgba(255,255,255,.72);
+
+      --ok:#3ddc97;
+      --warn:#ffcc66;
+      --bad:#ff6b6b;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+      -webkit-text-size-adjust:100%;
+      background:
+        radial-gradient(1000px 700px at 18% 5%, rgba(242,195,107,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 20%, rgba(255,255,255,.05), transparent 62%),
+        linear-gradient(180deg,#08080d,#101019);
+    }
+
+    /* =========================
+       ✅ Phone Stage：桌機也長得像手機
+       ========================= */
+    .stage{
+      min-height:100dvh;
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+    }
+    .app{
+      width:min(480px, 100%);
+      min-height:100dvh;
+      display:flex;
+      flex-direction:column;
+      background:transparent;
+    }
+    @media (min-width:768px){
+      body{ overflow:auto; }
+      .stage{ padding:18px 0; align-items:flex-start; }
+      .app{
+        border-radius:22px;
+        overflow:hidden;
+        border:1px solid rgba(255,255,255,.10);
+        box-shadow:0 30px 120px rgba(0,0,0,.55);
+      }
+    }
+
+    /* header */
+    .header{
+      position:relative;
+      padding:14px 16px 14px;
+      background:
+        radial-gradient(800px 400px at 50% -10%, rgba(242,195,107,.22), transparent 62%),
+        linear-gradient(180deg,#1b1b28,#141421);
+      border-bottom:1px solid var(--line);
+      overflow:hidden;
+      padding-top: calc(14px + env(safe-area-inset-top));
+    }
+    .title{font-size:18px;font-weight:900;letter-spacing:.5px}
+    .sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+    /* lanterns */
+    .lantern{
+      position:absolute;
+      top:6px;
+      width:44px; height:66px;
+      border-radius:18px 18px 22px 22px;
+      background:linear-gradient(180deg,#e60000,#b30000);
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 18px 50px rgba(179,0,0,.20);
+      opacity:.95;
+    }
+    .lantern:before{
+      content:"";
+      position:absolute;
+      left:50%; top:-10px;
+      transform:translateX(-50%);
+      width:18px; height:12px;
+      border-radius:6px 6px 4px 4px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+    }
+    .lantern:after{
+      content:"";
+      position:absolute;
+      left:50%; bottom:-10px;
+      transform:translateX(-50%);
+      width:14px; height:18px;
+      border-radius:3px;
+      background:linear-gradient(180deg,var(--gold),transparent);
+      filter:drop-shadow(0 10px 20px rgba(242,195,107,.25));
+      opacity:.9;
+    }
+    .l1{left:10px; animation:sway 3.4s ease-in-out infinite alternate}
+    .l2{right:10px; transform-origin:50% 0%; animation:sway 3.0s ease-in-out infinite alternate-reverse}
+    @keyframes sway{
+      from{ transform:rotate(-3deg) translateY(0) }
+      to{ transform:rotate(3deg) translateY(2px) }
+    }
+
+    /* banner */
+    .banner{
+      margin-top:10px;
+      background:
+        linear-gradient(90deg, rgba(179,0,0,.18), rgba(242,195,107,.12), rgba(179,0,0,.18));
+      border:1px solid rgba(242,195,107,.18);
+      border-radius:14px;
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.06);
+      white-space:nowrap;
+    }
+    .badge.red{ border-color:rgba(255,107,107,.30); background:rgba(179,0,0,.14) }
+    .badge.gold{ border-color:rgba(242,195,107,.28); background:rgba(242,195,107,.10) }
+    .badge.ok{border-color:rgba(61,220,151,.35); background:rgba(61,220,151,.08)}
+    .badge.warn{border-color:rgba(255,204,102,.35); background:rgba(255,204,102,.08)}
+    .badge.bad{border-color:rgba(255,107,107,.35); background:rgba(255,107,107,.08)}
+
+    .bannerText{
+      flex:1;
+      font-weight:900;
+      letter-spacing:.6px;
+      font-size:13px;
+      color:rgba(255,255,255,.92);
+    }
+
+    /* ticker */
+    .ticker{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      overflow:hidden;
+      background:rgba(0,0,0,.18);
+    }
+    .tickerTrack{
+      display:flex;
+      gap:26px;
+      padding:8px 12px;
+      white-space:nowrap;
+      will-change:transform;
+      animation:marquee 18s linear infinite;
+      font-size:12px;
+      color:rgba(255,255,255,.78);
+    }
+    @keyframes marquee{
+      from{ transform:translateX(0) }
+      to{ transform:translateX(-50%) }
+    }
+
+    /* main */
+    .main{
+      flex:1;
+      overflow:auto;
+      padding:14px;
+      padding-bottom: calc(14px + 64px + env(safe-area-inset-bottom));
+    }
+
+    .card{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      margin-bottom:12px;
+    }
+    .section-title{font-size:14px;font-weight:900;margin-bottom:8px}
+
+    .btn{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      font-weight:900;
+      letter-spacing:.4px;
+      background:linear-gradient(180deg,#f6d17b,#e7b84f);
+      color:#000;
+      cursor:pointer;
+    }
+    .btn.dark{
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .btn:active{transform:translateY(1px)}
+    .row{display:flex; gap:10px}
+    .row .btn{flex:1}
+
+    /* tabs */
+    .tabbar{
+      position:sticky;
+      bottom:0;
+      display:flex;
+      border-top:1px solid var(--line);
+      background:#0f0f16;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab{
+      flex:1;
+      text-align:center;
+      padding:10px 4px;
+      font-size:11px;
+      color:#9aa0b3;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab.active{color:var(--gold)}
+
+    .view{display:none}
+    .view.active{display:block}
+
+    /* leaderboard/profile/rules */
+    .rank{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:13px;
+    }
+    .profile-row{
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:13px;
+    }
+    .rule{font-size:12px;line-height:1.75;color:#d7dbeb}
+
+    /* ---------- Result Modal (bottom sheet) ---------- */
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index:90;
+      padding:14px;
+      transform:none;
+    }
+    .modal.show{display:flex}
+    .sheet{
+      width:min(520px, 100%);
+      background:linear-gradient(180deg,#1a1a26,#141421);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      box-shadow:0 18px 60px rgba(0,0,0,.55);
+      overflow:hidden;
+    }
+    .sheetHead{
+      padding:12px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .sheetHead b{font-size:14px}
+    .sheetHead button{
+      border:none;background:transparent;color:#fff;font-size:18px;cursor:pointer;
+      opacity:.85;
+    }
+    .sheetBody{padding:14px}
+    .resultTitle{font-weight:900;font-size:18px;margin:8px 0 6px}
+    .resultSub{color:var(--muted);font-size:12px;line-height:1.55}
+
+    /* ---------- Roulette Overlay (game) ---------- */
+    .rouletteOverlay{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(900px 600px at 15% 10%, rgba(242,195,107,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 30%, rgba(255,255,255,.06), transparent 60%),
+        linear-gradient(180deg,#0c0c12,#12121a);
+      display:none;
+      z-index:100;
+      transform:none;
+    }
+    .rouletteOverlay.show{display:block}
+    .rouletteTop{
+      padding:14px 14px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding-top: calc(14px + env(safe-area-inset-top));
+    }
+    .rouletteTop .t{font-weight:900}
+    .backBtn{
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .rouletteBody{
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
+    }
+
+    .wheelWrap{
+      width:min(360px, 92vw);
+      height:min(360px, 92vw);
+      position:relative;
+    }
+
+    .pointer{
+      position:absolute;
+      top:-6px;
+      left:50%;
+      transform:translateX(-50%);
+      width:0;height:0;
+      border-left:14px solid transparent;
+      border-right:14px solid transparent;
+      border-top:22px solid var(--gold);
+      filter:drop-shadow(0 8px 16px rgba(0,0,0,.45));
+      z-index:4;
+      pointer-events:none;
+    }
+    .pointer::after{
+      content:"";
+      position:absolute;
+      left:-10px; top:-24px;
+      width:20px; height:20px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, #fff, var(--gold2));
+      border:1px solid rgba(255,255,255,.35);
+    }
+    .pointer.tick{ animation:pointerTick .08s ease-out; }
+    @keyframes pointerTick{
+      from{ transform:translateX(-50%) rotate(0deg); }
+      to{ transform:translateX(-50%) rotate(-10deg); }
+    }
+
+    .wheel{
+      width:100%; height:100%;
+      border-radius:50%;
+      padding:10px;
+      background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.22), rgba(0,0,0,.35));
+      box-shadow:
+        0 0 0 4px rgba(242,195,107,.10),
+        0 20px 60px rgba(0,0,0,.55);
+    }
+    .wheelInner{
+      width:100%; height:100%;
+      border-radius:50%;
+      border:2px solid rgba(255,255,255,.18);
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(179,0,0,.25), rgba(127,0,0,.28));
+      position:relative;
+    }
+    #wheelCanvas{
+      width:100%;
+      height:100%;
+      display:block;
+      border-radius:50%;
+      will-change: transform;
+      transform: translateZ(0);
+      pointer-events:none;
+    }
+
+    .centerBtn{
+      position:absolute;
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);
+      width:98px; height:98px;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, #fff, var(--gold2));
+      border:2px solid rgba(255,255,255,.32);
+      box-shadow:0 16px 40px rgba(0,0,0,.45);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      color:#7f0000;
+      font-weight:900;
+      user-select:none;
+      cursor:pointer;
+      z-index:6;
+    }
+    .centerBtn span{font-size:14px}
+    .centerBtn small{font-size:10px; opacity:.9; margin-top:3px}
+    .centerBtn:active{ transform:translate(-50%,-50%) scale(.98); }
+
+    .wheelHint{
+      width:min(360px, 92vw);
+      color:rgba(255,255,255,.72);
+      font-size:12px;
+      line-height:1.55;
+      text-align:center;
+    }
+
+    /* confetti */
+    .confetti{
+      position:fixed; inset:0; pointer-events:none; z-index:120; overflow:hidden;
+    }
+    .confetti i{
+      position:absolute;
+      top:-12px;
+      width:10px;height:16px;border-radius:2px;
+      opacity:.9;
+    }
+  </style>
 </head>
 
 <body>
-<div class="app">
-  <div class="header">
-    <div class="lantern l1"></div>
-    <div class="lantern l2"></div>
+  <div class="stage">
+    <div class="app">
+      <div class="header">
+        <div class="lantern l1"></div>
+        <div class="lantern l2"></div>
 
-    <div class="title">新春輪盤活動</div>
-    <div class="sub">台灣新年氛圍 · 正式版前端 · 先專心輪盤（扭蛋已移除）</div>
+        <div class="title">新春輪盤活動</div>
+        <div class="sub">台灣新年氛圍 · 正式版前端 · 先專心輪盤（扭蛋已移除）</div>
 
-    <div class="banner">
-      <span class="badge red">🧧 迎春</span>
-      <div class="bannerText">恭喜發財 · 好運連連 · 轉出你的新年福氣</div>
-      <span class="badge gold">🎡 輪盤</span>
-    </div>
+        <div class="banner">
+          <span class="badge red">🧧 迎春</span>
+          <div class="bannerText">恭喜發財 · 好運連連 · 轉出你的新年福氣</div>
+          <span class="badge gold">🎡 輪盤</span>
+        </div>
 
-    <div class="ticker">
-      <div class="tickerTrack" id="tickerTrack">
-        <span>🧨 爆竹一響 黃金萬兩</span>
-        <span>🧧 紅包拿滿 好運不斷</span>
-        <span>🏮 平安順心 天天好運</span>
-        <span>🍍 旺來旺來 天天好采頭</span>
-        <span>🧨 爆竹一響 黃金萬兩</span>
-        <span>🧧 紅包拿滿 好運不斷</span>
-        <span>🏮 平安順心 天天好運</span>
-        <span>🍍 旺來旺來 天天好采頭</span>
+        <div class="ticker">
+          <div class="tickerTrack">
+            <span>🧨 爆竹一響 黃金萬兩</span>
+            <span>🧧 紅包拿滿 好運不斷</span>
+            <span>🏮 平安順心 天天好運</span>
+            <span>🍍 旺來旺來 天天好采頭</span>
+            <span>🧨 爆竹一響 黃金萬兩</span>
+            <span>🧧 紅包拿滿 好運不斷</span>
+            <span>🏮 平安順心 天天好運</span>
+            <span>🍍 旺來旺來 天天好采頭</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="main">
+        <!-- HOME -->
+        <div class="view active" id="home">
+          <div class="card">
+            <div class="section-title">活動公告</div>
+            <div style="font-size:13px;color:#d7dbeb;line-height:1.7">
+              這是新年活動輪盤的<strong>正式版前端</strong>。目前先把輪盤體驗做滿（動畫、停靠、結果、喜氣特效）。
+              下一階段再接：派發次數 / 扣次數 / 真排行榜。
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">快速入口</div>
+            <div class="row">
+              <button class="btn" id="enterRouletteBtn">🎡 進入輪盤</button>
+              <button class="btn dark" id="goRulesBtn">📜 規則/客服</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">新年小提醒</div>
+            <div style="font-size:12px;color:var(--muted2);line-height:1.7">
+              ✅ 建議用手機直式全螢幕玩，沉浸感最好。<br/>
+              ✅ 轉盤結果目前採「前端抽選示意」，之後會由後端決定、可稽核。
+            </div>
+          </div>
+        </div>
+
+        <!-- GAME -->
+        <div class="view" id="game">
+          <div class="card">
+            <div class="section-title">輪盤遊戲</div>
+            <button class="btn" id="startSpinBtn">🎡 開始轉 · 拚個好彩頭</button>
+            <div style="margin-top:10px;color:rgba(255,255,255,.70);font-size:12px;line-height:1.55">
+              目前先專心把輪盤體驗做成「新年活動正式版」：視覺喜氣、結果回饋、儀式感到位。
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">玩法提示</div>
+            <div style="font-size:12px;color:#d7dbeb;line-height:1.75">
+              ① 進入輪盤 → ② 點中間「開始轉」→ ③ 等待停靠 → ④ 顯示結果 + 新年特效<br/>
+              （之後接後端：會顯示剩餘次數、沒次數不能轉）
+            </div>
+          </div>
+        </div>
+
+        <!-- LEADERBOARD -->
+        <div class="view" id="leaderboard">
+          <div class="card">
+            <div class="section-title">排行榜（暫為示意）</div>
+            <div class="rank"><span>1. 玩家A</span><span>🎯 12次</span></div>
+            <div class="rank"><span>2. 玩家B</span><span>🎯 9次</span></div>
+            <div class="rank"><span>3. 玩家C</span><span>🎯 7次</span></div>
+            <div class="rank"><span>4. 玩家D</span><span>🎯 5次</span></div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
+              下一階段改成真資料：以「遊玩/中獎紀錄」做每日榜、活動榜。
+            </div>
+          </div>
+        </div>
+
+        <!-- PROFILE -->
+        <div class="view" id="profile">
+          <div class="card">
+            <div class="section-title">我的帳號（示意）</div>
+            <div class="profile-row"><span>身份來源</span><span>LINE LIFF</span></div>
+            <div class="profile-row"><span>使用者狀態</span><span>正常</span></div>
+            <div class="profile-row"><span>活動模式</span><span>新春輪盤</span></div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">我的紀錄（暫存）</div>
+            <div class="profile-row"><span>輪盤遊玩</span><span id="myRouletteCnt">0 次</span></div>
+            <div class="profile-row"><span>最近一次結果</span><span id="myLast">—</span></div>
+            <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
+              ※ 目前用瀏覽器暫存記錄（localStorage）。接後端後會變成真紀錄。
+            </div>
+          </div>
+        </div>
+
+        <!-- RULES -->
+        <div class="view" id="rules">
+          <div class="card">
+            <div class="section-title">規則與說明</div>
+            <div class="rule">
+              本活動為新春娛樂互動用途。<br/>
+              後續會加入「平台派發次數」機制：使用者無法購買、交易或轉讓遊玩次數。<br/>
+              本平台不提供金流服務，不涉及賭博、博弈或抽獎販售機制。<br/>
+              請勿利用本活動進行任何違法用途。
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-title">客服支援</div>
+            <div class="rule">
+              Email：support@platform.com<br/>
+              LINE：官方帳號客服<br/><br/>
+              回報建議格式：<br/>
+              1) LINE 顯示名稱　2) 問題描述　3) 截圖（若有）
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB BAR -->
+      <div class="tabbar">
+        <div class="tab active" data-tab="home">🏠<br/>首頁</div>
+        <div class="tab" data-tab="game">🎮<br/>遊戲</div>
+        <div class="tab" data-tab="leaderboard">🏆<br/>排行榜</div>
+        <div class="tab" data-tab="profile">👤<br/>我的</div>
+        <div class="tab" data-tab="rules">📜<br/>規則</div>
       </div>
     </div>
   </div>
 
-  <div class="main">
-
-    <!-- HOME -->
-    <div class="view active" id="home">
-      <div class="card">
-        <div class="section-title">活動公告</div>
-        <div class="p">
-          這是新年活動輪盤的<strong>正式版前端</strong>。目前先把輪盤體驗做滿（動畫、停靠、結果、喜氣特效）。
-          下一階段再接：派發次數 / 扣次數 / 真排行榜。
-        </div>
+  <!-- Result Modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="sheet">
+      <div class="sheetHead">
+        <b id="modalTitle">結果</b>
+        <button id="modalCloseBtn" aria-label="close">✕</button>
       </div>
-
-      <div class="card">
-        <div class="section-title">快速入口</div>
-        <div class="row">
-          <button class="btn" id="goRoulette1">🎡 進入輪盤</button>
-          <button class="btn dark" id="goRules">📜 規則/客服</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">新年小提醒</div>
-        <div class="p muted">
-          ✅ 建議用手機直式全螢幕玩，沉浸感最好。<br/>
-          ✅ 轉盤結果目前採「前端抽選示意」，之後會由後端決定、可稽核。
+      <div class="sheetBody">
+        <div id="modalBadge" class="badge">—</div>
+        <div class="resultTitle" id="modalMain">—</div>
+        <div class="resultSub" id="modalSub">—</div>
+        <div style="height:10px"></div>
+        <button class="btn" id="modalAgainBtn">再轉一次</button>
+        <div style="margin-top:10px;color:rgba(255,255,255,.65);font-size:12px;line-height:1.55">
+          提示：目前是前端抽選示意。下一階段會改成後端抽選、可控可稽核、可接派發次數。
         </div>
       </div>
     </div>
-
-    <!-- GAME -->
-    <div class="view" id="game">
-      <div class="card">
-        <div class="section-title">輪盤遊戲</div>
-        <button class="btn" id="goRoulette2">🎡 開始轉 · 拚個好彩頭</button>
-        <div class="p muted" style="margin-top:10px">
-          目前先專心把輪盤體驗做成「新年活動正式版」：視覺喜氣、結果回饋、儀式感到位。
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">玩法提示</div>
-        <div class="p">
-          ① 進入輪盤 → ② 點中間「開始轉」→ ③ 等待停靠 → ④ 顯示結果 + 新年特效<br/>
-          （之後接後端：會顯示剩餘次數、沒次數不能轉）
-        </div>
-      </div>
-    </div>
-
-    <!-- LEADERBOARD -->
-    <div class="view" id="leaderboard">
-      <div class="card">
-        <div class="section-title">排行榜（暫為示意）</div>
-        <div class="rank"><span>1. 玩家A</span><span>🎯 12次</span></div>
-        <div class="rank"><span>2. 玩家B</span><span>🎯 9次</span></div>
-        <div class="rank"><span>3. 玩家C</span><span>🎯 7次</span></div>
-        <div class="rank"><span>4. 玩家D</span><span>🎯 5次</span></div>
-        <div class="p muted" style="margin-top:10px">
-          下一階段改成真資料：以「遊玩/中獎紀錄」做每日榜、活動榜。
-        </div>
-      </div>
-    </div>
-
-    <!-- PROFILE -->
-    <div class="view" id="profile">
-      <div class="card">
-        <div class="section-title">我的帳號（示意）</div>
-        <div class="profile-row"><span>身份來源</span><span>LINE LIFF</span></div>
-        <div class="profile-row"><span>使用者狀態</span><span>正常</span></div>
-        <div class="profile-row"><span>活動模式</span><span>新春輪盤</span></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">我的紀錄（暫存）</div>
-        <div class="profile-row"><span>輪盤遊玩</span><span id="myRouletteCnt">0 次</span></div>
-        <div class="profile-row"><span>最近一次結果</span><span id="myLast">—</span></div>
-        <div class="p muted" style="margin-top:10px">
-          ※ 目前用瀏覽器暫存記錄（localStorage）。接後端後會變成真紀錄。
-        </div>
-      </div>
-    </div>
-
-    <!-- RULES -->
-    <div class="view" id="rules">
-      <div class="card">
-        <div class="section-title">規則與說明</div>
-        <div class="rule">
-          本活動為新春娛樂互動用途。<br/>
-          後續會加入「平台派發次數」機制。<br/>
-          請勿利用本活動進行任何違法用途。
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">客服支援</div>
-        <div class="rule">
-          Email：support@platform.com<br/>
-          LINE：官方帳號客服<br/><br/>
-          回報建議格式：<br/>
-          1) LINE 顯示名稱　2) 問題描述　3) 截圖（若有）
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- TAB BAR -->
-  <div class="tabbar">
-    <div class="tab active" data-tab="home">🏠<br/>首頁</div>
-    <div class="tab" data-tab="game">🎮<br/>遊戲</div>
-    <div class="tab" data-tab="leaderboard">🏆<br/>排行榜</div>
-    <div class="tab" data-tab="profile">👤<br/>我的</div>
-    <div class="tab" data-tab="rules">📜<br/>規則</div>
-  </div>
-</div>
+  <!-- Roulette Overlay -->
+  <div class="rouletteOverlay" id="rouletteOverlay" aria-hidden="true">
+    <div class="rouletteTop">
+      <div class="t">🎡 新春輪盤</div>
+      <button class="backBtn" id="rouletteBackBtn">返回</button>
+    </div>
 
-<!-- ✅ Roulette Overlay（把你「新輪盤」整套帶回這裡） -->
-<div class="rouletteOverlay" id="rouletteOverlay" aria-hidden="true">
-  <div class="rouletteTop">
-    <div class="t">🎡 新春輪盤</div>
-    <button class="backBtn" id="backBtn" type="button">返回</button>
-  </div>
-
-  <div class="rouletteBody">
-    <div class="roulette-container">
-      <div class="couplet left">招財進寶</div>
-
-      <div class="wheel-area" id="wheelArea">
-        <div class="pointer"></div>
-
-        <div class="wheel-shell">
+    <div class="rouletteBody">
+      <div class="wheelWrap">
+        <div class="pointer" id="pointer"></div>
+        <div class="wheel">
           <canvas id="wheelCanvas" width="600" height="600"></canvas>
+          <div class="centerBtn" id="spinCenterBtn">
+            <span>開始轉</span><small>恭喜發財</small>
+          </div>
         </div>
-
-        <button class="center-btn" id="spinBtn" type="button" aria-label="開始轉">
-          <div class="glow-ring"></div>
-          <span>開始轉</span>
-          <small>恭喜發財</small>
-        </button>
       </div>
 
-      <div class="couplet right">五福臨門</div>
-    </div>
-
-    <button class="btn" style="width:min(360px,92vw)" id="spinBtn2">🧧 開始轉 · 旺旺來</button>
-    <div class="wheelHint">把「喜氣 + 儀式感」做滿。下一階段再接派發次數/扣次數/後端稽核。</div>
-  </div>
-</div>
-
-<!-- ✅ 結果 overlay（你新做的：紅包上蓋滑開） -->
-<div class="result-overlay" id="resultOverlay" aria-hidden="true">
-  <div class="result-envelope" id="resultEnvelope" role="dialog" aria-modal="true">
-    <div class="envelope-top"></div>
-    <div class="envelope-body">
-      <div class="gold-light"></div>
-      <div class="result-text" id="resultText">—</div>
-      <div class="result-sub" id="resultSub">—</div>
-      <button class="again-btn" id="againBtn" type="button">再轉一次</button>
-      <button class="close-btn" id="closeBtn" type="button">關閉</button>
+      <button class="btn" style="width:min(360px,92vw)" id="spinBottomBtn">🧧 開始轉 · 旺旺來</button>
+      <div class="wheelHint">把手機音量開一點（之後可加音效）。現在先把「喜氣 + 儀式感」做滿。</div>
     </div>
   </div>
-</div>
 
-<div class="confetti" id="confetti"></div>
+  <div class="confetti" id="confetti"></div>
 
-<script src="./roulette.js"></script>
+  <script>
+    /* ---------------- Tabs ---------------- */
+    function switchTab(id){
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelector('.tab[data-tab="'+id+'"]').classList.add('active');
+    }
+    document.querySelectorAll('.tab').forEach(el=>{
+      el.addEventListener('click', ()=> switchTab(el.dataset.tab));
+    });
+
+    /* quick buttons */
+    document.getElementById('enterRouletteBtn').addEventListener('click', openRoulette);
+    document.getElementById('startSpinBtn').addEventListener('click', openRoulette);
+    document.getElementById('goRulesBtn').addEventListener('click', ()=> switchTab('rules'));
+
+    /* ---------------- Modal ---------------- */
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBadge = document.getElementById("modalBadge");
+    const modalMain = document.getElementById("modalMain");
+    const modalSub = document.getElementById("modalSub");
+
+    function openModal({title="結果", badgeText="—", badgeKind="", main="—", sub="—"}){
+      modalTitle.textContent = title;
+      modalBadge.textContent = badgeText;
+      modalBadge.className = "badge" + (badgeKind ? " " + badgeKind : "");
+      modalMain.textContent = main;
+      modalSub.textContent = sub;
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden","false");
+    }
+    function closeModal(){
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden","true");
+    }
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('modalAgainBtn').addEventListener('click', ()=>{
+      closeModal();
+      setTimeout(()=> spinRoulette(), 60);
+    });
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal) closeModal();
+    });
+
+    /* ---------------- Local record (pure frontend) ---------------- */
+    const LS_KEY = "tw_ny_roulette_records_v1";
+    function loadRec(){
+      try{ return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }catch{ return {}; }
+    }
+    function saveRec(obj){ localStorage.setItem(LS_KEY, JSON.stringify(obj)); }
+    function bumpRec(lastText){
+      const r = loadRec();
+      r.rouletteCnt = r.rouletteCnt || 0;
+      r.rouletteCnt += 1;
+      if(lastText) r.last = lastText;
+      saveRec(r);
+      renderRec();
+    }
+    function renderRec(){
+      const r = loadRec();
+      document.getElementById("myRouletteCnt").textContent = (r.rouletteCnt || 0) + " 次";
+      document.getElementById("myLast").textContent = r.last || "—";
+    }
+    renderRec();
+
+    /* ---------------- Confetti ---------------- */
+    const confetti = document.getElementById("confetti");
+    function burstConfetti(count, style="normal"){
+      confetti.innerHTML = "";
+      const colors = style === "firework"
+        ? ["#f6d17b","#e7b84f","#ffffff","#ff6b6b","rgba(255,255,255,.75)"]
+        : ["#f6d17b","#e7b84f","#ffffff","rgba(255,255,255,.75)"];
+
+      for(let i=0;i<count;i++){
+        const el = document.createElement("i");
+        el.style.left = (Math.random()*100) + "vw";
+        el.style.top = (-10 - Math.random()*20) + "px";
+        el.style.width = (6 + Math.random()*10) + "px";
+        el.style.height = (10 + Math.random()*18) + "px";
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.borderRadius = (Math.random() > 0.6) ? "999px" : "2px";
+        el.style.opacity = 0.85 + Math.random()*0.15;
+
+        const dur = 1200 + Math.random()*1600;
+        const dx = (Math.random()*2-1)*160;
+        const rot = 360 + Math.random()*540;
+
+        confetti.appendChild(el);
+        el.animate(
+          [
+            { transform: `translateY(0) translateX(0) rotate(0deg)` },
+            { transform: `translateY(110vh) translateX(${dx}px) rotate(${rot}deg)` }
+          ],
+          { duration: dur, fill: "forwards", easing: "linear" }
+        );
+      }
+      setTimeout(()=>{ confetti.innerHTML=""; }, 2600);
+    }
+
+    /* ---------------- Roulette Game (canvas + time-based easing) ---------------- */
+    const rouletteOverlay = document.getElementById("rouletteOverlay");
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const pointer = document.getElementById("pointer");
+
+    const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2;
+    const radius=270;
+
+    const PRIZES = [
+      { name:"🍍 旺來好運", weight:28, badge:"旺", kind:"ok", sub:"新的一年旺旺來！" },
+      { name:"🧧 紅包加持", weight:22, badge:"福", kind:"ok", sub:"福氣滿滿，恭喜發財！" },
+      { name:"🏮 平安順心", weight:18, badge:"安", kind:"ok", sub:"平安順心，日日是好日。" },
+      { name:"🧨 爆竹大吉", weight:14, badge:"吉", kind:"warn", sub:"爆竹一響，萬事如意！" },
+      { name:"🎯 好彩頭",   weight:10, badge:"喜", kind:"warn", sub:"有彩頭，做啥都順！" },
+      { name:"👑 超級好運", weight:6,  badge:"大獎", kind:"bad", sub:"今天運勢爆棚！" }
+    ];
+
+    const n = PRIZES.length;
+    const slice = (Math.PI*2)/n;
+
+    let state = "idle";
+    let currentRotation = 0; // degrees
+    let lastSector = 0;
+
+    function tierColor(i){
+      if (i === n - 1) return "rgba(242,195,107,.60)";
+      if (i >= n - 3) return i % 2 ? "rgba(255,204,102,.20)" : "rgba(179,0,0,.32)";
+      return i % 2 ? "rgba(0,0,0,.16)" : "rgba(179,0,0,.28)";
+    }
+
+    function drawWheel(){
+      ctx.clearRect(0,0,W,H);
+
+      const grd = ctx.createRadialGradient(cx,cy,20,cx,cy,radius);
+      grd.addColorStop(0, "rgba(242,195,107,.20)");
+      grd.addColorStop(1, "rgba(0,0,0,.28)");
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI*2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+
+      for(let i=0;i<n;i++){
+        const a0 = i*slice - Math.PI/2;
+        const a1 = a0 + slice;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, a0, a1);
+        ctx.closePath();
+        ctx.fillStyle = tierColor(i);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255,255,255,.14)";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(a0 + slice/2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "rgba(255,255,255,.95)";
+        ctx.font = (i === n - 1)
+          ? '900 28px "Noto Sans TC", system-ui, sans-serif'
+          : '900 26px "Noto Sans TC", system-ui, sans-serif';
+        ctx.fillText(PRIZES[i].name, radius-18, 10);
+        ctx.restore();
+      }
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius-10, 0, Math.PI*2);
+      ctx.strokeStyle = "rgba(242,195,107,.35)";
+      ctx.lineWidth = 10;
+      ctx.stroke();
+    }
+
+    function pickWeightedIndex(){
+      const total = PRIZES.reduce((s,p)=>s+p.weight,0);
+      let r = Math.random()*total;
+      for(let i=0;i<PRIZES.length;i++){
+        r -= PRIZES[i].weight;
+        if(r<=0) return i;
+      }
+      return PRIZES.length-1;
+    }
+
+    function tick(){
+      pointer.classList.remove("tick");
+      void pointer.offsetWidth;
+      pointer.classList.add("tick");
+    }
+
+    function easeOutCubic(t){ return 1 - Math.pow(1-t,3); }
+
+    function openRoulette(){
+      rouletteOverlay.classList.add("show");
+      rouletteOverlay.setAttribute("aria-hidden","false");
+      // 確保字體 ready 再 draw（避免桌機/手機字寬不同）
+      if(document.fonts && document.fonts.ready){
+        document.fonts.ready.then(()=> drawWheel()).catch(()=> drawWheel());
+      }else{
+        drawWheel();
+      }
+    }
+    function closeRoulette(){
+      rouletteOverlay.classList.remove("show");
+      rouletteOverlay.setAttribute("aria-hidden","true");
+    }
+    document.getElementById('rouletteBackBtn').addEventListener('click', closeRoulette);
+    document.getElementById('spinCenterBtn').addEventListener('click', spinRoulette);
+    document.getElementById('spinBottomBtn').addEventListener('click', spinRoulette);
+
+    function spinRoulette(){
+      if(state !== "idle") return;
+      state = "spinning";
+
+      const idx = pickWeightedIndex();
+      const prize = PRIZES[idx];
+
+      const degPer = 360/n;
+      const centerDeg = (idx + 0.5) * degPer;
+      const extraRounds = 5 + Math.floor(Math.random()*2);
+
+      const start = currentRotation;
+      const end = start + extraRounds*360 + (360 - centerDeg);
+
+      const duration = 4200;
+      const t0 = performance.now();
+      lastSector = Math.floor(start / degPer);
+
+      function raf(now){
+        const t = Math.min(1, (now - t0)/duration);
+        const eased = easeOutCubic(t);
+        const rot = start + (end - start)*eased;
+
+        const sector = Math.floor(rot / degPer);
+        if(sector !== lastSector){
+          tick();
+          lastSector = sector;
+        }
+
+        currentRotation = rot;
+        canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+        if(t < 1){
+          requestAnimationFrame(raf);
+          return;
+        }
+
+        currentRotation = currentRotation % 360;
+        state = "idle";
+
+        const isBig = prize.weight <= 6;
+        if(isBig) burstConfetti(70, "firework");
+        else burstConfetti(32, "normal");
+
+        bumpRec("輪盤：" + prize.name);
+
+        openModal({
+          title:"🧧 新春輪盤結果",
+          badgeText: prize.badge,
+          badgeKind: prize.kind,
+          main: prize.name,
+          sub: prize.sub
+        });
+      }
+      requestAnimationFrame(raf);
+    }
+
+    /* escape */
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape"){
+        closeModal();
+        closeRoulette();
+      }
+    });
+  </script>
 </body>
 </html>
