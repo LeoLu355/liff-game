@@ -156,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tick();
     }
 
+  
     canvas.style.transform = `rotate(${currentRotation}deg)`;
     requestAnimationFrame(animateSpin);
   }
